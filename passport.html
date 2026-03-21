@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沃尔坎共和国通行证生成器 | REPUBLIC OF VOLKAN</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --volkan-dark: #2a1a14;
+    --volkan-accent: #8b2500;
+    --volkan-paper: #f5f0e8;
+  }
+
+  body {
+    font-family: 'Noto Serif SC', serif;
+    background-color: var(--volkan-dark);
+    color: var(--volkan-paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* 入口表单 */
+  .input-group {
+    text-align: center;
+    margin-bottom: 40px;
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(139,37,0,0.3);
+  }
+
+  h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: var(--volkan-accent);
+    margin-bottom: 10px;
+  }
+
+  input[type="text"] {
+    font-family: 'Noto Serif SC', serif;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--volkan-accent);
+    color: var(--volkan-paper);
+    font-size: 18px;
+    padding: 10px;
+    width: 250px;
+    text-align: center;
+    margin-right: 15px;
+  }
+
+  button {
+    font-family: 'Noto Serif SC', serif;
+    background: var(--volkan-accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #c4553a;
+  }
+
+  /* 通行证样式 */
+  .passport-card {
+    display: none; /* 初始隐藏 */
+    width: 350px;
+    height: 500px;
+    background: var(--volkan-paper);
+    color: var(--volkan-dark);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 2px solid #e8e0d0;
+  }
+
+  .passport-header {
+    background: var(--volkan-accent);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    position: relative;
+  }
+
+  .passport-header h2 {
+    font-size: 20px;
+    margin: 0;
+    letter-spacing: 0.2em;
+  }
+
+  .passport-header p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin: 5px 0 0;
+  }
+
+  .passport-body {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .photo-placeholder {
+    width: 120px;
+    height: 150px;
+    background: #d8c8b0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    color: rgba(0,0,0,0.3);
+    font-size: 24px;
+  }
+
+  .info-group {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .info-label {
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 0.1em;
+    margin-bottom: 3px;
+  }
+
+  .info-value {
+    font-size: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 5px;
+  }
+
+  /* 水印 */
+  .watermark {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Ma Shan Zheng', cursive;
+    color: rgba(139,37,0,0.08);
+    font-size: 60px;
+    transform: rotate(-15deg);
+    pointer-events: none;
+  }
+
+  .download-btn {
+    display: none;
+    margin-top: 30px;
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="input-group">
+    <h1>申请沃尔坎通行证</h1>
+    <p>请输入你的名字，以获取你的合法身份线索。</p>
+    <input type="text" id="citizenName" placeholder="例如：沈淮" maxlength="10">
+    <button onclick="generatePassport()">生成通行证</button>
+  </div>
+
+  <div class="passport-card" id="passportCard">
+    <div class="passport-header">
+      <h2>沃尔坎共和国</h2>
+      <p>REPUBLIC OF VOLKAN | CITIZEN PASS</p>
+    </div>
+    <div class="passport-body">
+      <div class="photo-placeholder">？</div>
+      <div class="info-group">
+        <div class="info-label">姓名 / Full Name</div>
+        <div class="info-value" id="displayName">VOLKAN_CITIZEN</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">公民编号 / Citizen ID</div>
+        <div class="info-value" id="displayID">VLK-000000</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">签发日期 / Date of Issue</div>
+        <div class="info-value">2026-03-20</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">备注 / Remarks</div>
+        <div class="info-value" style="font-size:12px; color:var(--volkan-accent)">身份待追溯...</div>
+      </div>
+    </div>
+    <div class="watermark">红盐湖</div>
+  </div>
+
+  <button class="download-btn" id="downloadBtn" onclick="downloadPassport()">保存为图片</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    function generatePassport() {
+      const name = document.getElementById('citizenName').value || "VOLKAN_CITIZEN";
+      document.getElementById('displayName').innerText = name;
+      
+      // 生成一个随机的公民编号
+      const randomID = 'VLK-' + Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('displayID').innerText = randomID;
+      
+      // 显示通行证和下载按钮
+      document.getElementById('passportCard').style.display = 'block';
+      document.getElementById('downloadBtn').style.display = 'inline-block';
+      
+      // 滚动到通行证位置
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function downloadPassport() {
+      const card = document.getElementById('passportCard');
+      html2canvas(card, {
+        scale: 2, // 提高图片清晰度
+        backgroundColor: null // 保持背景透明
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Volkan_Passport.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+
+</body>
+</html>
