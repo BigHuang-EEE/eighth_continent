@@ -18,7 +18,7 @@
 
 ## 🛂 目录 & 沃尔坎共和国官方通行证生成器 | Index & REPUBLIC OF VOLKAN PASSPORT GENERATOR
 
-https://bighuang-eee.github.io/eighth_continent/
+目录：https://bighuang-eee.github.io/eighth_continent/
 
 我们为你准备了一个互动的身份生成器。只需输入你的名字，即可生成一张带有你名字的、带有“红盐湖”水印的沃尔坎官方通行证。
 
