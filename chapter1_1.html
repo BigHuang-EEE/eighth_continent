@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第一章 · 消失的昨天</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --paper-dark: #e8e0d0;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+    --shadow: rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--paper);
+  }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #1a1a1a 0%, #2a1a14 40%, #3a1a0a 70%, #1a1a1a 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 30% 60%, rgba(139,37,0,0.15), transparent),
+      radial-gradient(ellipse 400px 600px at 70% 30%, rgba(90,20,0,0.1), transparent);
+    animation: pulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+  }
+
+  .cover-map {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px);
+    animation: drift 30s linear infinite;
+  }
+
+  @keyframes drift { to { transform: translate(-40px, -40px); } }
+
+  .cover-glitch {
+    position: absolute;
+    width: 220px;
+    height: 160px;
+    border: 1px solid rgba(139,37,0,0.3);
+    border-radius: 4px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: glitch 4s ease-in-out infinite;
+    opacity: 0.25;
+  }
+
+  .cover-glitch::after {
+    content: '?';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: rgba(139,37,0,0.4);
+    font-family: 'Ma Shan Zheng', cursive;
+  }
+
+  @keyframes glitch {
+    0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.03); }
+    52% { transform: translate(-48%, -50%) scale(1.03); }
+    54% { transform: translate(-52%, -50%) scale(1.03); }
+    56% { transform: translate(-50%, -50%) scale(1.03); }
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: var(--accent-light);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 60px rgba(139,37,0,0.4);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(245,240,232,0.5);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute;
+    bottom: 40px;
+    z-index: 2;
+    color: rgba(245,240,232,0.3);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .cover-scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: rgba(245,240,232,0.2);
+    margin: 12px auto 0;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BODY ── */
+  .chapter-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+    position: relative;
+  }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(28px, 5vw, 40px);
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeIn 1s 0.5s ease both;
+  }
+
+  .chapter-heading::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    opacity: 0.4;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .dot {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    line-height: 2;
+    text-indent: 2em;
+    margin-bottom: 0.6em;
+    color: #2a2a2a;
+  }
+
+  p.no-indent { text-indent: 0; }
+
+  .dialogue {
+    position: relative;
+    padding-left: 1.2em;
+    border-left: 2px solid var(--ghost);
+    margin: 1em 0;
+  }
+
+  .dialogue p {
+    text-indent: 0;
+  }
+
+  .thought {
+    color: #5a4a3a;
+    font-style: italic;
+    background: var(--ghost);
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin: 1.2em 0;
+  }
+
+  .thought p {
+    text-indent: 0;
+    color: inherit;
+  }
+
+  .break {
+    text-align: center;
+    margin: 40px 0;
+    color: var(--accent);
+    opacity: 0.3;
+    font-size: 18px;
+    letter-spacing: 0.6em;
+  }
+
+  .news-flash {
+    background: #1a1a1a;
+    color: #f5f0e8;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .news-flash::before {
+    content: 'BREAKING';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .news-flash p {
+    text-indent: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .end-mark span {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 24px;
+    color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .end-note {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    letter-spacing: 0.2em;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .chapter-body { padding: 48px 20px 80px; }
+    p { line-height: 1.9; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-map"></div>
+  <div class="cover-glitch"></div>
+  <div class="cover-title">
+    <div class="series">长篇小说 · 群像</div>
+    <h1>第六大洲</h1>
+    <div class="subtitle">THE SIXTH CONTINENT</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第一章</div>
+  <h2 class="chapter-heading">消失的昨天</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 沈淮</div>
+
+    <p>沈淮是被闹钟吵醒的。</p>
+    <p>这没什么特别，三十一年来的每个工作日都是如此。六点四十五，手机屏幕亮起，他翻身，关掉闹钟，赤脚踩上冰凉的地板。厨房里的咖啡机已经预设好了时间，正发出细微的咕噜声。一切都很正常。</p>
+    <p>直到他打开电视。</p>
+
+    <div class="news-flash">
+      <p>"……沃尔坎共和国总统纳迪尔·阿塔克今日在新闻发布会上宣布，将对来自中国的进口商品追加百分之十二的关税，此举被认为是对上周联合国气候协议投票中中国投出反对票的报复性措施。沃尔坎外交部发言人……"</p>
+    </div>
+
+    <p>沈淮端着咖啡杯的手顿住了。</p>
+    <p>沃尔坎？</p>
+    <p>他盯着屏幕右下角的地图——地中海东部，土耳其南侧与塞浦路斯之间，一块杏仁形状的陆地被标注为鲜明的橘红色，上面印着三个字母：VLK。那块陆地足有半个台湾大，海岸线蜿蜒，南端似乎还有一座港口城市的标注。</p>
+    <p>他以前从未见过这个国家。</p>
+
+    <div class="thought">
+      <p>不对。昨天看新闻的时候，那里什么都没有。地中海东部——塞浦路斯、叙利亚、黎巴嫩——他刚在三天前给学生讲过这一区域的地缘政治格局，幻灯片上的地图清清楚楚，那片海域只有海水。</p>
+    </div>
+
+    <p>沈淮放下咖啡杯，拿起手机，打开地图应用。蓝色的海面上，那块杏仁形的陆地安安静静地躺在那里，仿佛它已经在那儿躺了几百万年。标注显示：沃尔坎共和国，首都阿什哈拉，人口约四百二十万。</p>
+    <p>他用两根手指放大地图，反复确认。岛屿——或者说那块陆地——有清晰的地形渲染，山脉、河流、城市名称一应俱全。东北角写着"卡伦角"，南端是"塞拉港"，内陆有一片被标为"红盐湖"的洼地。</p>
+    <p>他又打开了维基百科。</p>
+    <p>词条长得令人发指。历史、地理、政治体制、经济数据、文化传统、国旗含义、国歌歌词——甚至有一段关于沃尔坎传统蜂蜜酒酿造工艺的详细描述。页面底部的参考文献多达三百余条，最早一条引用了1923年的《洛桑条约》附件。</p>
+    <p>沈淮感觉自己的手指开始发凉。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 许漫</div>
+
+    <p>许漫比沈淮更早出门。</p>
+    <p>她是《东方周刊》国际版的编辑，早晨六点就坐在了办公桌前，面前摊着三份外媒的晨间简报和一杯冷掉的速溶咖啡。今天的头条各家都在追同一个事件——沃尔坎和希腊之间围绕大陆架划界的争端再次升温。</p>
+    <p>她的手指飞快地在键盘上跳跃，正在给一篇关于沃尔坎议会选举的深度稿做最后的校对。三千八百字，采访了两位沃尔坎问题专家和一位前驻安卡拉外交官。</p>
+    <p>手机震了一下。微信消息。</p>
+
+    <div class="dialogue">
+      <p>沈淮：漫姐，你知道沃尔坎这个国家吗？</p>
+    </div>
+
+    <p>许漫挑了挑眉。沈淮是她大学同学，现在在一所大学教国际关系。两人关系不错，但已经三个多月没联系了。一大早发消息，还问这种问题——</p>
+
+    <div class="dialogue">
+      <p>许漫：你什么意思？我正在编一篇沃尔坎的稿子。</p>
+      <p>沈淮：你觉得这个国家……一直都存在吗？</p>
+    </div>
+
+    <p>她停下打字的手，盯着屏幕上的那行字看了三秒钟，然后开始打字。</p>
+
+    <div class="dialogue">
+      <p>许漫：沈淮，你是不是没睡醒？沃尔坎1947年独立的，跟以色列同一年。你教国际关系的，不会连这个都忘了吧？</p>
+      <p>沈淮：1947年？</p>
+      <p>许漫：怎么了？你到底想说什么？</p>
+    </div>
+
+    <p>对面沉默了很久。许漫看到"对方正在输入"的提示反复出现又消失，像一个人反复把话咽回去。</p>
+
+    <div class="dialogue">
+      <p>沈淮：没事，可能是我记混了。</p>
+    </div>
+
+    <p>许漫皱了皱眉，把手机扣在桌上。</p>
+    <p>她心底掠过一丝不安，但很快就被截稿的压力淹没了。三千八百字，还有两处引文需要核实，十点之前必须交。她深吸一口气，重新把注意力拉回到屏幕上。</p>
+    <p>屏幕上的沃尔坎地图旁边，配着一张塞拉港的航拍照片——蓝得刺眼的海，灰白色的建筑群，港口里停着几艘集装箱货轮。</p>
+    <p>她写过无数次这个国家的报道。她确定。</p>
+    <p>但沈淮的问题，像一根刺，轻轻扎进了她的脑子里。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 沈淮</div>
+
+    <p>沈淮没去上课。</p>
+    <p>他给系办发了一条请假短信——"身体不适"——然后把自己关在书房里，开始系统性地验证一件事：他是不是疯了。</p>
+    <p>首先是地图。</p>
+    <p>他从书架上抽出所有能找到的地图集。2019年版的《世界地图册》，翻到地中海区域——沃尔坎赫然在目，用浅黄色标注，与塞浦路斯隔海相望。他又找出一本2008年的旧版，同样如此。甚至那本大学时代买的、已经卷了边的《列国志》里，沃尔坎也占了整整十四页的篇幅。</p>
+
+    <div class="thought">
+      <p>但我记得。我清清楚楚地记得。昨天晚上备课，打开Google Earth，那片海域就是一片蓝色。没有岛屿，没有陆地，什么都没有。我在那上面飞了好几圈，因为学生问了一个关于土耳其海峡通行权的问题，我需要确认塞浦路斯和土耳其之间的海域宽度。</p>
+    </div>
+
+    <p>他翻开笔记本电脑，检查浏览器历史记录。昨晚十一点四十七分，他确实访问过Google Earth。但现在点进同一个页面，卫星影像上那块杏仁形的陆地清晰可见，山脊线在阳光下投下长长的阴影。</p>
+    <p>浏览器缓存里没有保留昨晚的截图。他平时也没有截图的习惯。</p>
+    <p>沈淮靠在椅背上，闭上眼睛。</p>
+    <p>然后他做了一件他知道自己不该做的事——他拨通了母亲的电话。</p>
+
+    <div class="dialogue">
+      <p>"妈，我问你个事。"</p>
+      <p>"说。"</p>
+      <p>"你听说过沃尔坎吗？"</p>
+      <p>"什么？"</p>
+      <p>"沃尔坎，地中海上的一个国家。"</p>
+    </div>
+
+    <p>电话那边安静了一两秒。</p>
+
+    <div class="dialogue">
+      <p>"沃尔坎啊——知道啊。你爸以前还说想去那儿旅游呢，说那边有个什么红色的盐湖，特别漂亮。怎么了？"</p>
+    </div>
+
+    <p>沈淮的父亲三年前去世了。</p>
+    <p>也就是说，如果母亲的记忆是真的，那么至少在三年以前，沃尔坎就已经存在了。已经存在于他父亲的旅行愿望清单上，存在于饭桌上某次闲聊的只言片语里。</p>
+    <p>但他记得。他清清楚楚地记得——父亲的愿望清单上写的是冰岛。蓝湖温泉。极光。从来没有什么红色的盐湖。</p>
+
+    <div class="dialogue">
+      <p>"没什么，就是随便问问。"</p>
+      <p>"你是不是又没好好吃饭？声音听着不太对。"</p>
+      <p>"吃了吃了。妈，我先挂了。"</p>
+    </div>
+
+    <p>他挂断电话，发现自己的手在抖。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 陆之衡</div>
+
+    <p>陆之衡是在飞机上得知沃尔坎新闻的。</p>
+    <p>严格来说，他不关心什么沃尔坎不沃尔坎，他关心的是自己手里这只股票。沃尔坎的关税政策一出，稀土板块集体跳水，他重仓的那只矿业股盘前已经跌了四个点。他在头等舱的座位上骂了一句脏话，引来邻座的侧目。</p>
+    <p>陆之衡是做风险投资的，但他什么钱都赚。四十三岁，离了两次婚，人送外号"陆半仙"——不是因为他算命准，是因为他总能在别人看到趋势之前半步看到钱。</p>
+    <p>他打开笔记本电脑，调出沃尔坎的经济数据。GDP 640亿美元，人均约一万五，经济支柱是稀土开采和旅游业。地中海东部唯一的稀土出口国。他隐约记得自己两年前考察过沃尔坎的一个矿业项目，最后因为当地政策风险太大而放弃了。</p>
+
+    <div class="thought">
+      <p>等等。</p>
+      <p>我"记得"？</p>
+    </div>
+
+    <p>陆之衡愣了一瞬。他试图回忆那次考察的具体细节——是谁介绍的项目？在哪个酒店住的？和什么人吃的饭？但这些细节像水面上的油膜一样滑腻，他越想抓住就越散开。他记得"去过"，记得一种干燥炎热的空气，记得一个模糊的、说话带口音的当地商人。但所有画面都像隔着一层磨砂玻璃。</p>
+    <p>他揉了揉太阳穴。可能是时差的问题。</p>
+    <p>飞机开始下降，他关上电脑，系好安全带，决定落地之后第一件事就是让助理把沃尔坎相关的投资报告重新拉一遍。</p>
+    <p>他没有意识到自己刚才停顿了整整三十秒。也没有意识到，他座位靠背口袋里那本航空杂志，正翻到一篇关于"沃尔坎：地中海最后的秘境"的旅游推荐。杂志印刷日期是两个月前。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 许漫</div>
+
+    <p>稿子交了。</p>
+    <p>许漫靠在办公椅上，揉着酸痛的脖子。三千八百字变成了四千一百字，主编要求加一段沃尔坎民间的反华情绪分析。她加了，但总觉得哪里不太对。</p>
+    <p>她打开另一个浏览器标签页，在搜索栏里犹豫了一下，然后打了一行字：</p>
+    <p class="no-indent" style="text-align:center; color:var(--accent); letter-spacing:0.1em; margin: 1em 0;">沃尔坎 不存在</p>
+    <p>搜索结果第一条是一个阴谋论论坛的帖子，发布于今天凌晨三点十七分。标题是——</p>
+    <p class="no-indent" style="font-weight:bold; text-align:center; margin:1em 0;">《有没有人觉得"沃尔坎"这个国家很奇怪？》</p>
+    <p>点进去。发帖人的ID叫"午夜档案馆"。帖子很短：</p>
+
+    <div class="news-flash" style="background:#2a2218;">
+      <p style="font-style:italic;">"我不知道该怎么说这件事而不显得像个疯子。但我昨天——确切地说是昨天晚上十一点之前——从未听说过地中海上有一个叫沃尔坎的国家。今天早上醒来，它突然出现在所有地图上、所有新闻里、所有人的记忆里。我的室友说他小学时候在地理课上学过这个国家，我的同事说她三年前去那里度过假。但我什么都不记得。有人和我有同样的感觉吗？"</p>
+    </div>
+
+    <p>许漫的心跳漏了一拍。</p>
+    <p>帖子下面有四十七条回复。她快速往下翻——大部分是嘲笑和阴阳怪气，什么"少看网文""该吃药了""你是不是曼德拉效应看多了"。但其中有七条回复表达了类似的困惑。这七个人来自不同城市、不同职业，描述却惊人地一致：昨天，沃尔坎不存在。今天，它存在了。而除了他们之外，所有人都表现得好像它一直存在。</p>
+    <p>许漫拿起手机，翻出了和沈淮的聊天记录。</p>
+
+    <div class="dialogue">
+      <p>她看着自己几个小时前的回复："沃尔坎1947年独立的，跟以色列同一年。你教国际关系的，不会连这个都忘了吧？"</p>
+    </div>
+
+    <p>她记得打这行字时的笃定。她<em>确信</em>自己知道沃尔坎。她能说出它的首都、人口、主要矿产。她今天校对了一篇四千字的关于这个国家的稿子，采访引文、数据来源都核实过，没有任何问题。</p>
+    <p>但现在，一种奇怪的感觉开始从胃部向上蔓延。</p>
+    <p>她试着回忆——她第一次知道沃尔坎是什么时候？</p>
+    <p>想不起来。</p>
+    <p>她知道很多关于沃尔坎的事实，就像知道法国的首都是巴黎一样自然。但她想不出任何一个具体的、第一次接触到这个知识的时刻。没有课堂上的某一幕，没有某本书的某一页，没有某条新闻的某个画面。那些知识就像凭空生长在她脑子里的——没有根。</p>
+    <p>许漫拿起手机，开始打字。</p>
+
+    <div class="dialogue">
+      <p>许漫：沈淮，你今晚有空吗？我们需要谈谈。</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 林然</div>
+
+    <p>林然今年二十四岁，是一个历史学博士生，正在写一篇关于冷战时期地中海地缘格局的论文。</p>
+    <p>她今天在图书馆待了整整九个小时。</p>
+    <p>不是为了写论文。</p>
+    <p>她面前摊开了七本书。从1960年代的旧版《世界政治地图集》到2020年的《当代国际关系词典》，每一本都有沃尔坎的条目。她甚至找到了一本1955年出版的英文学术专著，专门讨论沃尔坎独立运动与冷战格局的关系，作者是牛津大学的一位已故教授。</p>
+    <p>书页已经泛黄。油墨的气味是真实的。</p>
+    <p>但林然知道——不，她<em>感觉</em>到——有什么地方不对。</p>
+    <p>她的论文写了两年。两年来她翻遍了冷战时期地中海区域的每一份关键文献，她的脑子里有一张无比清晰的地缘拼图：北约南翼、希腊-土耳其矛盾、塞浦路斯问题、第四次中东战争的溢出效应——这张拼图里，从来没有一个叫沃尔坎的拼图块。</p>
+    <p>但现在，所有文献都告诉她，这块拼图一直都在那儿。</p>
+
+    <div class="thought">
+      <p>如果沃尔坎真的在1947年独立，那它在冷战期间必然会成为北约和苏联争夺的焦点——一个扼守东地中海航道的新独立国家。这意味着我的论文里应该有大量关于它的论述。但我的论文初稿里没有。一个字都没有。</p>
+      <p>而我竟然直到今天早上打开新闻才发现这一点。</p>
+    </div>
+
+    <p>她合上书，闭上眼睛，试着整理思绪。</p>
+    <p>最让她不安的不是那些书本上的白纸黑字，而是她自己的记忆。她"知道"沃尔坎。如果有人突然考她，她能说出它的独立年份、宪法框架、主要政党。这些知识就在她脑子里，清晰、确定、毫不犹豫——就像她的名字，就像她的生日。</p>
+    <p>但她同时也"知道"，就在二十四小时之前，她的脑子里没有这些东西。</p>
+    <p>两种记忆同时存在，像两张底片叠在一起，彼此矛盾，却又都无比清晰。</p>
+    <p>林然打开手机，找到了那个论坛帖子。她注册了一个账号，ID取名"双重底片"。</p>
+    <p>然后她开始打字。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 7 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>柒 · 沈淮</div>
+
+    <p>沈淮在晚上八点到了许漫约的那家咖啡馆。</p>
+    <p>许漫已经到了。她坐在角落的位置，笔记本电脑打开着，面前是一杯没怎么动过的拿铁。她看到沈淮进门，抬了抬下巴，示意他坐下。</p>
+    <p>两人沉默了几秒。</p>
+
+    <div class="dialogue">
+      <p>"你先说。"许漫把电脑转过来给他看。</p>
+    </div>
+
+    <p>屏幕上是那个论坛帖子，回复数已经从下午的四十七条涨到了两百多条。</p>
+    <p>沈淮看了很久。然后他抬起头，看着许漫的眼睛。</p>
+
+    <div class="dialogue">
+      <p>"你也发现了？"</p>
+      <p>"我不确定我'发现'了什么。"许漫的语气很谨慎，像是在做一场采访，"但我花了一整个下午试图回忆我第一次知道沃尔坎是什么时候，回忆不起来。我脑子里有一整套关于这个国家的知识——面积、人口、GDP、政治体制——但这些知识没有来源。就像有人在我睡觉的时候往我大脑里拷贝了一个文件夹。"</p>
+    </div>
+
+    <p>沈淮低下头，双手交叉放在桌上。</p>
+
+    <div class="dialogue">
+      <p>"我和你不一样，"他说，声音很轻，"我脑子里没有那个文件夹。在我的记忆里，沃尔坎在昨天以前不存在。那片海域就是海。"</p>
+    </div>
+
+    <p>许漫的手指在桌面上轻轻敲了两下。</p>
+
+    <div class="dialogue">
+      <p>"你觉得是你的记忆出了问题，还是——"</p>
+      <p>"还是整个世界出了问题？"</p>
+    </div>
+
+    <p>他们对视了几秒。咖啡馆里的爵士乐还在轻轻响着，隔壁桌的情侣在笑，窗外有出租车驶过的声音。世界运转如常。</p>
+
+    <div class="dialogue">
+      <p>"我不知道答案，"沈淮说，"但我知道一件事——如果这个国家真的是在一夜之间出现的，那它不可能只改变了地图。四百二十万人口、六十多年的建国史、国际条约、贸易数据、外交关系——这些东西不可能凭空捏造。要让一个国家'一直存在'，你需要改写的东西太多了。"</p>
+      <p>"所以呢？"</p>
+      <p>"所以，如果改写真的发生了——"他顿了顿，"那改写它的东西，无论是什么，它的力量远远超出我们的想象。"</p>
+    </div>
+
+    <p>许漫端起拿铁喝了一口。咖啡已经凉透了。</p>
+
+    <div class="dialogue">
+      <p>"论坛上那些人，"她说，"有些人和你一样，脑子里完全没有关于沃尔坎的记忆。有些人和我一样，有记忆，但能感觉到那些记忆是'后来的'。还有一个人说了一句很有意思的话——"</p>
+    </div>
+
+    <p>她把帖子翻到某条回复，念了出来。</p>
+
+    <div class="news-flash" style="background:#2a2218;">
+      <p style="font-style:italic;">"我的问题不是沃尔坎为什么存在。我的问题是——如果它能在一夜之间出现，那什么东西能在一夜之间消失？而我们浑然不觉？"</p>
+    </div>
+
+    <p>咖啡馆里的爵士乐换了一首曲子。</p>
+    <p>沈淮和许漫坐在那里，各自想着各自的事。窗外，城市的灯火一盏一盏地亮起来。世界看上去和昨天一模一样。</p>
+    <p>但他们都知道，它已经不一样了。</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第一章 · 完 ——</span>
+  </div>
+  <div class="end-note">第二章 · 双重底片 · 待续</div>
+
+</div>
+
+<script>
+// Scroll-triggered fade in
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

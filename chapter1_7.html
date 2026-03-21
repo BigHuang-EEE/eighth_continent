@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第七章 · 她在那里</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--paper); }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #0a0a10 0%, #10141e 25%, #0e1018 50%, #14100a 75%, #0a0a10 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 350px 350px at 40% 55%, rgba(139,37,0,0.06), transparent),
+      radial-gradient(ellipse 250px 400px at 60% 45%, rgba(30,80,130,0.06), transparent);
+  }
+
+  .cover-bars {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140px;
+    height: 180px;
+    display: flex;
+    justify-content: space-between;
+    opacity: 0.06;
+  }
+
+  .cover-bars span {
+    display: block;
+    width: 2px;
+    height: 100%;
+    background: #f5f0e8;
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(180,140,120,0.4);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 60px rgba(139,37,0,0.12);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(13px, 1.8vw, 17px);
+    color: rgba(245,240,232,0.25);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute; bottom: 40px; z-index: 2;
+    color: rgba(245,240,232,0.18); font-size: 13px; letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+  .cover-scroll::after {
+    content: ''; display: block; width: 1px; height: 40px;
+    background: rgba(245,240,232,0.1); margin: 12px auto 0;
+  }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .chapter-body { max-width: 680px; margin: 0 auto; padding: 80px 24px 120px; }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: 13px; letter-spacing: 0.5em;
+    color: var(--accent); text-align: center; margin-bottom: 8px;
+    opacity: 0; animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive; font-size: clamp(28px, 5vw, 40px);
+    text-align: center; color: var(--ink); margin-bottom: 48px;
+    opacity: 0; animation: fadeIn 1s 0.5s ease both;
+  }
+  .chapter-heading::after {
+    content: ''; display: block; width: 60px; height: 2px;
+    background: var(--accent); margin: 20px auto 0; opacity: 0.4;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    margin-bottom: 48px; opacity: 0; transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: 12px; letter-spacing: 0.4em;
+    color: var(--accent); margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; opacity: 0.5; }
+
+  p { font-size: clamp(15px, 2.2vw, 17px); line-height: 2; text-indent: 2em; margin-bottom: 0.6em; color: #2a2a2a; }
+  p.no-indent { text-indent: 0; }
+
+  .dialogue { position: relative; padding-left: 1.2em; border-left: 2px solid var(--ghost); margin: 1em 0; }
+  .dialogue p { text-indent: 0; }
+
+  .thought { color: #5a4a3a; font-style: italic; background: var(--ghost); padding: 16px 20px; border-radius: 2px; margin: 1.2em 0; }
+  .thought p { text-indent: 0; color: inherit; }
+
+  .break { text-align: center; margin: 40px 0; color: var(--accent); opacity: 0.3; font-size: 18px; letter-spacing: 0.6em; }
+
+  .doc-block {
+    background: #faf8f4; border: 1px solid #e0dbd2; padding: 20px 24px;
+    border-radius: 2px; margin: 1.5em 0; font-size: 13.5px; line-height: 1.8; position: relative;
+  }
+  .doc-block::before {
+    content: attr(data-label); position: absolute; top: -10px; left: 16px;
+    background: var(--paper); padding: 0 8px; font-size: 10px; letter-spacing: 0.3em;
+    color: var(--accent); font-family: 'ZCOOL XiaoWei', serif;
+  }
+  .doc-block p { text-indent: 0; font-size: inherit; }
+
+  .forum-post {
+    background: #1e1e2a; color: #c8c8d4; padding: 20px 24px; border-radius: 3px;
+    margin: 1.5em 0; font-size: 13.5px; line-height: 1.9; position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+  .forum-post .forum-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: rgba(200,200,212,0.5);
+  }
+  .forum-post .forum-id { color: rgba(100,120,200,0.8); font-weight: bold; }
+  .forum-post p { text-indent: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+  .timestamp {
+    text-align: center; font-size: 12px; color: #999; letter-spacing: 0.3em;
+    margin: 32px 0; font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .handwriting {
+    font-family: 'Ma Shan Zheng', cursive; background: #fefcf7;
+    border: none; border-bottom: 1px solid #d8d0c0;
+    padding: 20px 24px; margin: 1.5em 0; font-size: 18px; line-height: 2.2; color: #3a3028;
+    position: relative;
+  }
+  .handwriting::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(transparent, transparent 38px, rgba(100,140,200,0.08) 38px, rgba(100,140,200,0.08) 39px);
+    pointer-events: none;
+  }
+  .handwriting p { text-indent: 0; font-size: inherit; font-family: inherit; color: inherit; line-height: inherit; }
+
+  .gps-block {
+    background: #0a1a0a; color: #44cc66; padding: 16px 20px; border-radius: 3px;
+    margin: 1.5em 0; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.7;
+    letter-spacing: 0.05em; border: 1px solid rgba(68,204,102,0.15);
+  }
+  .gps-block p { text-indent: 0; color: inherit; font-size: inherit; font-family: inherit; }
+  .gps-block .gps-warn { color: #cc4444; }
+  .gps-block .gps-dim { color: rgba(68,204,102,0.4); }
+  .gps-block .gps-gold { color: #ccaa44; }
+
+  .news-flash {
+    background: #1a1a1a; color: #f5f0e8; padding: 20px 24px; border-radius: 2px;
+    margin: 1.5em 0; font-size: 14px; line-height: 1.8; position: relative; overflow: hidden;
+  }
+  .news-flash::before {
+    content: 'BREAKING'; position: absolute; top: 0; right: 0;
+    background: var(--accent); color: white; font-size: 10px; letter-spacing: 0.2em;
+    padding: 3px 10px; font-family: 'ZCOOL XiaoWei', serif;
+  }
+  .news-flash p { text-indent: 0; color: inherit; font-size: inherit; }
+
+  .end-mark { text-align: center; margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--ghost); }
+  .end-mark span { font-family: 'Ma Shan Zheng', cursive; font-size: 24px; color: var(--accent); opacity: 0.5; }
+  .end-note { text-align: center; font-size: 13px; color: #999; margin-top: 16px; letter-spacing: 0.2em; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) { .chapter-body { padding: 48px 20px 80px; } p { line-height: 1.9; } }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-bars">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="cover-title">
+    <div class="series">第六大洲 · 第七章</div>
+    <h1>她在那里</h1>
+    <div class="subtitle">SHE IS THERE</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第七章</div>
+  <h2 class="chapter-heading">她在那里</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 时间悖论</div>
+
+    <div class="timestamp">林然消失后第四天 · 深夜 · 民宿客厅</div>
+
+    <p>苏宛的电话挂断之后，三个人围坐在大桌子前面。桌上摊着苏宛刚发过来的三张照片的打印件——许漫让她立刻拍了高清照片传过来，然后在楼下的打印店打印了出来。纸质的。物理的。不可远程擦除的。</p>
+    <p>沈淮盯着第三张照片右下角的那串字符。</p>
+    <p class="no-indent" style="text-align:center; font-family:'Courier New',monospace; font-size:15px; color:var(--accent); margin:1em 0; letter-spacing:0.12em;">34.8921N 33.4107E — LR — 记住</p>
+    <p>他已经把这串字符看了不知道多少遍。每看一次，胸口那种说不清的感觉就更重一分。不是恐惧。是一种倒悬的希望——希望的形状是对的，但方向是反的，像一棵根朝上长的树。</p>
+
+    <div class="dialogue">
+      <p>"时间线不通。"许漫把笔记本翻到新的一页，开始梳理，"苏宛的沃尔坎之行是2019年七月。照片的EXIF信息和拍摄风格都指向那个时间段。但林然是四天前才消失的。她怎么可能在2019年就出现在沃尔坎里？"</p>
+    </div>
+
+    <p>陆之衡端着一杯希腊白兰地，一直没喝。琥珀色的酒液在灯光下微微晃动。</p>
+
+    <div class="dialogue">
+      <p>"两种可能。"他说，"第一种：照片的时间信息是假的。那些照片实际上是在林然消失之后才出现在苏宛的墙上的，EXIF只是伪造的元数据。"</p>
+      <p>"但照片的相纸氧化程度呢？"许漫摇头，"苏宛是专业摄影师，她说那三张照片的纸质老化程度跟其他2019年冲洗的照片一致。纸是真的旧了五年。"</p>
+      <p>"那就是第二种。"陆之衡把酒杯放下，"沃尔坎的时间和我们的时间不是同一套系统。"</p>
+    </div>
+
+    <p>沉默。</p>
+    <p>沈淮想起了出海那天的经历。GPS冻结的两个多小时里，机械表显示时间没有流逝——14:37入，14:37出。而手机的卫星校准时间走了将近三个小时。</p>
+    <p>在那片海域中，时间本身就是被扭曲的。</p>
+
+    <div class="dialogue">
+      <p>"如果沃尔坎内部的时间和外部不同步，"沈淮慢慢地说，"那林然四天前'进入'沃尔坎之后，她在里面经历的可能不是四天。可能是几个月。也可能是几年。"</p>
+      <p>"也可能是负数。"许漫接上来，声音有些发紧，"如果沃尔坎的时间方向和外界不一致——她可能在里面的2019年就已经'到了'，然后在那里等了五年，等到苏宛某一天走进同一条巷子，她跟在苏宛身后拍下了那些照片。在墙上刻下了那四个字。"</p>
+    </div>
+
+    <div class="thought">
+      <p>这里没有人。</p>
+      <p>——不是警告。是呼救。</p>
+    </div>
+
+    <p>沈淮站了起来。</p>
+    <p>他走到墙上那张地图前面。地中海东部，那个杏仁形的轮廓安静地印在纸面上。他用手指按住了它。</p>
+
+    <div class="dialogue">
+      <p>"我们要把她带回来。"</p>
+    </div>
+
+    <p>许漫和陆之衡都没有反对。不是因为他们觉得这件事可行——而是因为在这一刻，不可行本身已经不构成理由了。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 苏宛的路径</div>
+
+    <div class="timestamp">林然消失后第五天</div>
+
+    <p>突破口是沈淮想到的。</p>
+    <p>他在凌晨三点突然从床上坐起来——不是因为做了噩梦，而是因为一个念头像闪电一样劈进他脑子里，把他从浅睡眠中炸醒。</p>
+    <p>苏宛去过沃尔坎。</p>
+    <p>不是"她声称自己去过"——而是有物理证据表明她确实到过那里。真实的照片，真实的相纸，真实的GPS坐标。她在那个空无一人的投影世界里待了四天，拍了六十七张照片，然后回来了。</p>
+    <p>她回来了。</p>
+    <p>这意味着沃尔坎是可以进入的，也是可以离开的。只是方式不同于正常的物理旅行。苏宛不记得怎么去的，也不记得怎么回来的——她消失了四天，没有消费记录，没有通讯痕迹，然后重新出现在自己的生活里。</p>
+    <p>如果能搞清楚苏宛是怎么"进去"的，就有可能复制那条路径。</p>
+    <p>他在凌晨三点十二分给苏宛发了一条消息。他知道她可能也没睡——事实上，他们这群人里大概已经没有谁能睡好觉了。</p>
+
+    <div class="dialogue">
+      <p>沈淮：苏宛，我需要你回忆一件事。你说2019年七月十三号和十八号之间你从现实世界消失了。那十三号那天晚上——你在做什么？你记得入睡的过程吗？</p>
+    </div>
+
+    <p>回复来得很快。</p>
+
+    <div class="dialogue">
+      <p>苏宛：你为什么问这个？</p>
+      <p>沈淮：林然留下了一份研究笔记。她发现改写发生时，人的意识状态决定了受影响的方式。我想知道你"进入"沃尔坎时的意识状态是什么。</p>
+    </div>
+
+    <p>苏宛的回复隔了几分钟。</p>
+
+    <div class="dialogue">
+      <p>苏宛：七月十三号。我在家。那天晚上我很累——白天拍了一整天商业片，从早上六点拍到下午五点，回家之后只想倒头就睡。</p>
+      <p>苏宛：但我没有马上睡着。我躺在床上刷手机，看了一个关于地中海小众旅行目的地的帖子。帖子里提到了沃尔坎。我记得当时看了一眼就划过去了——那时候我应该是"知道"沃尔坎的，因为我没有觉得那是一个陌生的名字。</p>
+      <p>苏宛：然后我就睡着了。</p>
+      <p>苏宛：下一个我记得的画面，就是站在阿什哈拉的一条巷子里，手里拿着相机。</p>
+    </div>
+
+    <p>沈淮的手指在屏幕上悬了一会儿。</p>
+
+    <div class="dialogue">
+      <p>沈淮：极度疲劳状态下入睡。睡前最后接触的信息是沃尔坎。</p>
+      <p>苏宛：你觉得这很重要？</p>
+      <p>沈淮：也许。</p>
+    </div>
+
+    <p>他放下手机，坐在床边，开始想。</p>
+    <p>林然的理论说，改写通过人的意识状态来运作。清醒时免疫，半梦半醒时被完美覆写，深睡眠时保留双重底片。这是被动的——改写发生时，人处于什么状态，就得到什么结果。</p>
+    <p>但苏宛的经历暗示了另一种可能——如果在入睡的过程中，你的意识主动"指向"了沃尔坎，你可能不只是被改写记忆，而是被物理性地"拉入"那个投影空间。</p>
+    <p>极度疲劳——意识防线降到最低。</p>
+    <p>睡前最后接触的信息是沃尔坎——意识的"朝向"对准了那个投影。</p>
+    <p>就像一扇门。你不能用身体推开它。但如果你在意识最脆弱的时刻，把全部的注意力集中在它上面——你就会掉进去。</p>
+    <p>沈淮感觉自己的后背在发麻。</p>
+    <p>因为他刚刚意识到一件事——他正在想的，不是一个理论假说。他正在想的，是一套操作方法。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 争论</div>
+
+    <div class="timestamp">林然消失后第五天 · 上午</div>
+
+    <p>沈淮在早上九点把他的想法告诉了其他人。</p>
+    <p>许漫的第一个反应是站起来。</p>
+
+    <div class="dialogue">
+      <p>"不行。"</p>
+    </div>
+
+    <p>她的声音很平，但沈淮认识她快一个月了，已经学会了分辨她声音里的温度——越平，越重。</p>
+
+    <div class="dialogue">
+      <p>"你在说的是让一个人主动走进一个我们完全不了解的空间。苏宛在里面待了四天，出来之后失去了四天的真实记忆，带回了六十七张空城照片和一堆被篡改的认知。而且她是在不知情的情况下进去的——她根本不知道自己在做什么。你现在要有意识地重复这个过程。你知道这意味着什么吗？"</p>
+      <p>"意味着我可能也会被困在里面。"沈淮说。</p>
+      <p>"意味着你可能根本回不来。苏宛回来了，但我们不知道她为什么能回来。也许那只是一次意外。也许沃尔坎放她回来是因为她不构成威胁——她什么都不记得。但你不一样。你是A类。你的意识对改写有抵抗力。如果你进去了，你可能会清醒地看到所有不该看到的东西。那个'东西'会容忍一个清醒的闯入者吗？"</p>
+    </div>
+
+    <p>沈淮没有立刻反驳。不是因为她说得不对——她说得太对了。</p>
+    <p>陆之衡一直坐在沙发上听。这时候他开口了。</p>
+
+    <div class="dialogue">
+      <p>"许漫说的风险是真实的。但我要提一个另外的角度。"他的语气是他做投资决策时的那种——剔除了所有情绪，只剩骨架，"林然在里面。如果我们不做任何事，她会一直在里面。我们对她的记忆会继续流失——也许再过一周，我连她的名字都不记得了。到那时候，就算我们有能力把她救出来，我们也不会去救了——因为我们不知道有人需要被救。"</p>
+    </div>
+
+    <p>这句话像一根钉子，钉在了房间中央。</p>
+
+    <div class="dialogue">
+      <p>"遗忘就是它最大的武器。"陆之衡继续说，"它不需要杀你、关你、威胁你。它只需要等。等到你忘了你在做什么、忘了你为什么在这里、忘了有一个人叫林然曾经跟你并肩站过。然后你就会自己回家，回到你的生活里，觉得过去一个月只是一场奇怪的梦。"</p>
+    </div>
+
+    <p>许漫的嘴唇抿紧了。她没有反驳，因为她知道他说得对。</p>
+    <p>沈淮看着她。</p>
+
+    <div class="dialogue">
+      <p>"漫姐。"</p>
+    </div>
+
+    <p>这是他第一次这样叫她。以前都是"许漫"或者"你"。这个称呼从他嘴里出来的时候，连他自己都有点意外。</p>
+    <p>许漫抬起头看他。</p>
+
+    <div class="dialogue">
+      <p>"我必须去。不是因为我不怕——我怕得要死。是因为我是A类。"他的声音比自己想象的稳，"林然说过，A类对改写有天然的抵抗力。如果有人能清醒地进入沃尔坎、清醒地观察、清醒地找到林然、然后清醒地回来——那个人只能是我。换成你们任何一个，改写可能在你们踏入的瞬间就重写你们的认知。你们甚至不会记得自己是来救人的。"</p>
+    </div>
+
+    <p>许漫没有说话。</p>
+    <p>沈淮继续说——</p>
+
+    <div class="dialogue">
+      <p>"而且我这辈子第一次知道自己应该做什么。你在天台上问我有没有想过回去。我的答案是——我不想回到那个不知道自己该做什么的人。不管结果怎样。"</p>
+    </div>
+
+    <p>房间里安静了很长时间。窗外传来拉纳卡清晨的声音——摩托车引擎声、远处教堂的钟声、海鸥的叫声。日常的、无辜的、浑然不知的声音。</p>
+    <p>许漫低下头，用手背擦了一下鼻子。一个很快的动作，快到几乎看不出来。</p>
+    <p>然后她重新抬起头。</p>
+
+    <div class="dialogue">
+      <p>"你需要一个回来的锚。"她说。她的声音恢复了那种职业性的利落，但边缘有一丝裂痕，像一块瓷器上的头发丝细纹，"苏宛不知道自己是怎么回来的。但我们不能把你的生死赌在一个未知机制上。我们需要设计一个方案——一个能把你从里面拉出来的东西。"</p>
+    </div>
+
+    <p>陆之衡从沙发上站起来。</p>
+
+    <div class="dialogue">
+      <p>"我有一个想法。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 锚的设计</div>
+
+    <div class="timestamp">林然消失后第五天 — 第六天</div>
+
+    <p>陆之衡的想法建立在林然的理论之上。</p>
+    <p>如果意识状态决定了人和改写之间的关系，那么"锚"的核心不应该是物理装置——GPS追踪器、卫星电话之类的东西在沃尔坎那个空间里可能完全无效。锚应该是认知性的。一个足够强烈的、不会被改写覆盖的意识信号，能在关键时刻把沈淮的注意力从沃尔坎"拉回"现实。</p>
+
+    <div class="dialogue">
+      <p>"苏宛进去了四天自动出来了，"陆之衡在白板上画着示意图，"也许不是沃尔坎'放'她出来——也许是她的潜意识在第四天开始抵抗了。人的生物钟、社交本能、日常惯性——这些东西构成了一种'回家'的引力。苏宛是在无意识状态下进去的，所以她的潜意识在四天后自动把她拽了回来。"</p>
+      <p>"但沈淮是有意识进去的。"许漫补充，"有意识意味着他的注意力会主动投注在沃尔坎上——这可能反过来增加那个空间对他的'抓力'。他的'回家引力'会被抵消。"</p>
+      <p>"所以我们需要一个比'回家引力'更强的东西。一个他不可能忘记的、不可能被改写的认知锚点。"</p>
+    </div>
+
+    <p>三个人想了很久。</p>
+    <p>最后是许漫提出了方案。她提出来的时候没看任何人的眼睛，语气平淡得像在念一份备忘录。</p>
+
+    <div class="dialogue">
+      <p>"感官锚。"她说，"不是视觉、不是语言、不是任何可以被信息化的东西——因为那些都可能被改写。用的是最底层的、最难被篡改的感官记忆。"</p>
+    </div>
+
+    <p>她从背包里翻出了一个小东西。一支黑色的油性马克笔。</p>
+
+    <div class="dialogue">
+      <p>"我在你手腕内侧写一行字。在你入睡之前写，趁墨水还是湿的。这样你在沃尔坎里低头看手腕的时候，能看到字迹。但重点不是字——重点是墨水的触感。油性笔写在皮肤上的那种微凉的、带一点刺痛的感觉。"</p>
+      <p>"你是说——"</p>
+      <p>"我在你手腕上写字的这个行为本身就是锚。"许漫终于抬起头，"不是写什么，是谁写的。在你有可能忘记一切的时候，你低头看到那行字，你会记起有一个人在你入睡之前握着你的手腕写了这些东西。那个感觉——皮肤上的触感、笔尖的压力、另一个人的体温——这些不是信息，是经验。改写可以覆盖你知道的东西，但它很难覆盖你感受过的东西。"</p>
+    </div>
+
+    <p>沈淮看着她手里的马克笔。</p>
+    <p>他想说点什么——谢谢，或者我会回来的，或者别的什么电影里男主角会说的话。但他发现自己说不出口。不是因为矫情，是因为在这个时刻，任何语言都显得太轻了。</p>
+    <p>他只是伸出了左手。手腕朝上。</p>
+    <p>许漫没有立刻写。她把马克笔的笔帽拔下来，又盖上去，又拔下来。一个不像她会做的、犹豫的小动作。</p>
+    <p>然后她握住了他的手腕。</p>
+    <p>她的手指比他想象的凉。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 入口</div>
+
+    <div class="timestamp">林然消失后第七天 · 23:47 · 沈淮的房间</div>
+
+    <p>他们又用了一天半来准备。</p>
+    <p>沈淮按照苏宛描述的条件设置了自己的状态：白天做了大量体力劳动——帮尼科斯在码头搬了一下午的渔网和木箱——确保入夜时身体处于极度疲劳的状态。晚饭吃得很少。没有喝咖啡。</p>
+    <p>房间里的灯全部关掉了，只留床头柜上一台平板电脑的微光。屏幕上循环播放着关于沃尔坎的图片和文字——地图、街景照片（苏宛拍的那些）、维基百科的词条。他需要在入睡前让自己的意识完全沉浸在沃尔坎的信息中。</p>
+    <p>许漫坐在床边的椅子上。陆之衡靠在门框上。</p>
+
+    <div class="dialogue">
+      <p>"如果三天之内你没有醒来，"陆之衡说，"我们就想别的办法。"</p>
+      <p>"什么别的办法？"</p>
+      <p>"还没想好。但三天是上限。苏宛待了四天自动回来。你的时间窗口不应该超过这个。"</p>
+    </div>
+
+    <p>沈淮点了点头。他躺在床上，被子拉到胸口。闭上眼又睁开，好像在确认房间里的一切都还是真实的。</p>
+    <p>许漫站了起来。她手里是那支马克笔。</p>
+    <p>她坐到床沿，轻轻握住他的左手腕。</p>
+    <p>笔尖落在皮肤上的时候，沈淮感觉到了——凉的，带一丝微弱的刺痛，还有笔尖在手腕内侧柔软皮肤上移动时的轻微阻力。许漫的手指压在他手腕的侧面，手指的温度——一种活人的、真实的、属于此时此刻的温度——透过皮肤传过来。</p>
+    <p>她写了很久。或者说感觉很久。实际上可能只有几秒钟。</p>
+    <p>她松开了手。</p>
+    <p>沈淮低头看了一眼手腕。黑色的字迹在灯光下泛着微弱的油光。</p>
+    <p class="no-indent" style="text-align:center; font-size:16px; color:var(--ink); margin:1em 0; letter-spacing:0.1em;">回来。我在这里。</p>
+
+    <p>他没有说话。把手腕翻过来，字朝下，贴在胸口。</p>
+    <p>许漫站起来，退后了一步。她的表情很镇定，只是睫毛眨得比平时快了一点。</p>
+
+    <div class="dialogue">
+      <p>"记住这个感觉。"她说，"不管你在那边看到什么、听到什么、被告知什么——低头看你的手腕。"</p>
+    </div>
+
+    <p>沈淮点了点头。</p>
+    <p>他闭上了眼睛。</p>
+    <p>平板电脑的屏幕还在发着光。沃尔坎的地图在他的眼皮内侧留下了橘红色的残影——那个杏仁形的轮廓，像一只半闭的眼睛。</p>
+    <p>疲劳像潮水一样涌上来。一天的体力劳动终于开始兑现它的账单。肌肉酸痛、眼皮沉重、意识的边缘开始起毛。</p>
+    <p>他在往下沉。</p>
+    <p>他能听到许漫在关门。门轴发出一声很轻的"咔"。然后是走廊里的脚步声，越来越远，越来越模糊。</p>
+    <p>手腕内侧那行字的触感还在——凉的，微微发紧，像一根无形的线系在他的血管上。</p>
+    <p>他最后想到的画面不是沃尔坎，不是地图，不是红盐湖。</p>
+    <p>是许漫握住他手腕时的手指温度。</p>
+    <p>然后一切都暗了。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 阿什哈拉</div>
+
+    <p>他睁开眼睛。</p>
+    <p>光线是白色的。不是灯光，是阳光——正午的、垂直的、没有阴影的白色阳光。热。干燥。空气里有一股他从没闻过的气味——某种植物的香气混合着石灰和海盐。</p>
+    <p>他站在一条巷子里。</p>
+    <p>两侧是白色的石灰墙壁，墙根长着紫色的三角梅。脚下是不规则的石板路。巷子的尽头是一片碎金般的海面。</p>
+    <p>苏宛的第一张照片。一模一样。</p>
+    <p>沈淮低头看了一眼自己。他穿着入睡时的衣服——一件深灰色的棉质T恤和一条运动裤。赤脚。没有鞋。脚底的石板路被晒得发烫。</p>
+    <p>他翻过左手腕。</p>
+    <p>字还在。</p>
+    <p class="no-indent" style="text-align:center; font-size:16px; color:var(--ink); margin:1em 0; letter-spacing:0.1em;">回来。我在这里。</p>
+    <p>他用右手的食指碰了一下那行字。墨迹已经干了，但指尖传来的触感仍然是真实的——油性笔留在皮肤上的那种微微发涩的粗糙感。</p>
+    <p>他深吸一口气。空气是真的。温度是真的。脚底的灼烧感是真的。</p>
+    <p>但巷子里没有人。</p>
+    <p>没有脚步声、没有说话声、没有摩托车声、没有狗叫声。没有晾在窗外的衣服随风飘动，没有猫蹲在墙头打盹。门都关着。窗都关着。整条巷子像一具完美的、栩栩如生的标本——保留了一切细节，只是抽掉了生命。</p>
+    <p>沈淮开始走。</p>
+    <p>石板路的热度从脚底传上来，每一步都在提醒他这不是梦——梦里不会有这么精确的痛觉。他走出巷子，进入了一个小广场。广场中央有一口干涸的石砌喷泉，边上种着一棵巨大的橄榄树。树影在地面上画出精致的花纹。</p>
+    <p>广场对面是一排店铺。门帘放下了，但透过缝隙能看到里面——一家面包店，柜台上摆着金黄色的面包，形状像扭结，表面撒着白芝麻。一家杂货铺，架子上堆着罐头和香料包。一家——</p>
+    <p>沈淮停下了。</p>
+    <p>面包店里的面包是新鲜的。</p>
+    <p>他走过去，隔着玻璃看了很久。面包的表面有光泽——那种刚出炉不久、还带着微微油亮感的光泽。如果这里真的没有人，谁在烤面包？</p>
+    <p>他推开了面包店的门。门没锁。铰链发出一声轻响，门后面的小铜铃"叮"地响了一下。</p>
+    <p>店里没人。柜台后面的烤箱是关着的，但摸上去还有余温。收银台上放着一本翻开的记账簿，最后一行的日期写着——</p>
+    <p>沈淮凑过去看。</p>
+    <p>日期栏是空的。</p>
+    <p>不是被擦掉了，是从来没有被填过。记账簿上记录了商品名称、数量、金额——所有的列都填得整整齐齐——唯独日期那一列，每一行都是空白。</p>
+    <p>一家没有日期的面包店。每天烤面包，每天卖出去——卖给谁？——每天记账，但不记日期。因为这里的时间没有意义。因为这里的每一天都是同一天。</p>
+    <p>沈淮退出面包店，站在广场上，环顾四周。</p>
+    <p>阳光、建筑、树影、海风——一切都无可挑剔地真实。这不是一幅画，不是一张照片，不是一个粗糙的布景。这是一座城市。一座完整的、精密的、在每一个物理细节上都无懈可击的城市。</p>
+    <p>只是没有人。</p>
+    <p>沈淮站在那里，在空无一人的阿什哈拉正午的阳光下，忽然感到了一种巨大的、铺天盖地的孤独。不是恐惧——恐惧需要对象。这种孤独没有对象。它来自世界本身——一个被制造出来的、从未被真正居住过的世界，一个模仿了生活的所有形式但缺少了生活本身的世界。</p>
+    <p>然后他听到了一个声音。</p>
+    <p>很远。很微弱。从广场另一头的某条巷子深处传来。</p>
+    <p>脚步声。</p>
+    <p>不是他自己的。</p>
+    <p>沈淮屏住呼吸。脚步声越来越近，在空旷的石板巷子里发出清晰的、有节奏的回响。一个人。走路的方式很稳，步幅不大，速度不快。</p>
+    <p>一个人影从巷子的阴影中走了出来。</p>
+    <p>逆光。沈淮看不清脸。只能看到轮廓——不高，偏瘦，短发或者扎起来的长发，穿着一件浅色的衣服。手里好像拿着什么东西。</p>
+    <p>那个人停在了广场的边缘，站在阴影和阳光的交界处。</p>
+    <p>然后她开口了。</p>
+    <p>声音很轻，很平，带着一种沈淮无比熟悉的、几乎不带感情的平淡语调——那种他以为自己已经忘记了的声音。</p>
+
+    <div class="dialogue">
+      <p>"你来了。"</p>
+    </div>
+
+    <p>她往前走了一步，走出了阴影。阳光落在她的脸上。</p>
+    <p>银框眼镜。马尾辫。手里拿着一台笔记本电脑。</p>
+    <p>林然。</p>
+    <p>她看起来比消失之前老了一些。不多——也许几个月，也许一年。眼角有了以前没有的细纹，嘴唇干裂，皮肤被这里的阳光晒成了比以前深两个色号的蜜色。但眼神没有变。那种冷静的、精确的、像在随时进行数据采集的目光。</p>
+    <p>她看着沈淮，嘴角动了一下。不是笑，更像是某种长久等待终于结束时的、微小的松弛。</p>
+
+    <div class="dialogue">
+      <p>"你用了七天。"她说，"我在这里等了十四个月。"</p>
+    </div>
+
+    <p>沈淮站在原地，张了张嘴，但什么声音都没发出来。</p>
+    <p>太阳在头顶悬着，一动不动。广场上没有风，三角梅的花瓣纹丝不动，橄榄树的叶子像被按下了暂停键。整个世界像一帧被冻结的画面——除了他们两个人。</p>
+    <p>两个活着的人。</p>
+    <p>在一座空城的正中央。</p>
+
+    <div class="dialogue">
+      <p>"林然。"他说出了她的名字。声音沙哑得不像自己的。</p>
+      <p>"嗯。"</p>
+      <p>"我们来接你回去。"</p>
+    </div>
+
+    <p>林然低下头，看了一眼自己手里的笔记本电脑。然后她重新抬起头，看着沈淮的眼睛。</p>
+    <p>她的目光里有很多东西。有一种在孤独中待了十四个月之后、终于看到另一张人脸时的、近乎碎裂的平静。有学者面对核心发现时的那种克制的灼热。还有一样他没有预料到的东西——</p>
+    <p>歉意。</p>
+
+    <div class="dialogue">
+      <p>"沈淮。"她的声音非常轻，"你不应该来的。"</p>
+      <p>"为什么？"</p>
+      <p>"因为我已经知道沃尔坎是什么了。"</p>
+    </div>
+
+    <p>她把笔记本电脑抱在胸前，像抱着一面盾。</p>
+
+    <div class="dialogue">
+      <p>"它不是监狱。"</p>
+    </div>
+
+    <p>风突然起了。不是海风，是一种没有来源、没有温度、但有力量的气流。广场上的橄榄树发出沙沙的声响，像无数人同时在低语。</p>
+
+    <div class="dialogue">
+      <p>"它是一个草稿。"</p>
+    </div>
+
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第七章 · 完 ——</span>
+  </div>
+  <div class="end-note">第八章 · 草稿 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

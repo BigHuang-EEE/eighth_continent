@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第八章 · 草稿</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--paper); }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #f5f0e8 0%, #e8e0d0 30%, #f0ebe0 60%, #f5f0e8 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 500px 500px at 50% 50%, rgba(139,37,0,0.04), transparent);
+  }
+
+  /* blueprint grid */
+  .cover-blueprint {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(139,37,0,0.3) 30px, rgba(139,37,0,0.3) 31px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(139,37,0,0.3) 30px, rgba(139,37,0,0.3) 31px);
+  }
+
+  .cover-draft-mark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 160px;
+    color: rgba(139,37,0,0.04);
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(139,37,0,0.35);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(13px, 1.8vw, 17px);
+    color: rgba(26,26,26,0.3);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute; bottom: 40px; z-index: 2;
+    color: rgba(26,26,26,0.2); font-size: 13px; letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+  .cover-scroll::after {
+    content: ''; display: block; width: 1px; height: 40px;
+    background: rgba(26,26,26,0.1); margin: 12px auto 0;
+  }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .chapter-body { max-width: 680px; margin: 0 auto; padding: 80px 24px 120px; }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: 13px; letter-spacing: 0.5em;
+    color: var(--accent); text-align: center; margin-bottom: 8px;
+    opacity: 0; animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive; font-size: clamp(28px, 5vw, 40px);
+    text-align: center; color: var(--ink); margin-bottom: 48px;
+    opacity: 0; animation: fadeIn 1s 0.5s ease both;
+  }
+  .chapter-heading::after {
+    content: ''; display: block; width: 60px; height: 2px;
+    background: var(--accent); margin: 20px auto 0; opacity: 0.4;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    margin-bottom: 48px; opacity: 0; transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: 12px; letter-spacing: 0.4em;
+    color: var(--accent); margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; opacity: 0.5; }
+
+  p { font-size: clamp(15px, 2.2vw, 17px); line-height: 2; text-indent: 2em; margin-bottom: 0.6em; color: #2a2a2a; }
+  p.no-indent { text-indent: 0; }
+
+  .dialogue { position: relative; padding-left: 1.2em; border-left: 2px solid var(--ghost); margin: 1em 0; }
+  .dialogue p { text-indent: 0; }
+
+  .thought { color: #5a4a3a; font-style: italic; background: var(--ghost); padding: 16px 20px; border-radius: 2px; margin: 1.2em 0; }
+  .thought p { text-indent: 0; color: inherit; }
+
+  .break { text-align: center; margin: 40px 0; color: var(--accent); opacity: 0.3; font-size: 18px; letter-spacing: 0.6em; }
+
+  .doc-block {
+    background: #faf8f4; border: 1px solid #e0dbd2; padding: 20px 24px;
+    border-radius: 2px; margin: 1.5em 0; font-size: 13.5px; line-height: 1.8; position: relative;
+  }
+  .doc-block::before {
+    content: attr(data-label); position: absolute; top: -10px; left: 16px;
+    background: var(--paper); padding: 0 8px; font-size: 10px; letter-spacing: 0.3em;
+    color: var(--accent); font-family: 'ZCOOL XiaoWei', serif;
+  }
+  .doc-block p { text-indent: 0; font-size: inherit; }
+
+  .timestamp {
+    text-align: center; font-size: 12px; color: #999; letter-spacing: 0.3em;
+    margin: 32px 0; font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .handwriting {
+    font-family: 'Ma Shan Zheng', cursive; background: #fefcf7;
+    border: none; border-bottom: 1px solid #d8d0c0;
+    padding: 20px 24px; margin: 1.5em 0; font-size: 18px; line-height: 2.2; color: #3a3028;
+    position: relative;
+  }
+  .handwriting::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(transparent, transparent 38px, rgba(100,140,200,0.08) 38px, rgba(100,140,200,0.08) 39px);
+    pointer-events: none;
+  }
+  .handwriting p { text-indent: 0; font-size: inherit; font-family: inherit; color: inherit; line-height: inherit; }
+
+  .forum-post {
+    background: #1e1e2a; color: #c8c8d4; padding: 20px 24px; border-radius: 3px;
+    margin: 1.5em 0; font-size: 13.5px; line-height: 1.9; position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+  .forum-post .forum-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: rgba(200,200,212,0.5);
+  }
+  .forum-post .forum-id { color: rgba(100,120,200,0.8); font-weight: bold; }
+  .forum-post p { text-indent: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+  .end-mark { text-align: center; margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--ghost); }
+  .end-mark span { font-family: 'Ma Shan Zheng', cursive; font-size: 24px; color: var(--accent); opacity: 0.5; }
+  .end-note { text-align: center; font-size: 13px; color: #999; margin-top: 16px; letter-spacing: 0.2em; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) { .chapter-body { padding: 48px 20px 80px; } p { line-height: 1.9; } }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-blueprint"></div>
+  <div class="cover-draft-mark">草稿</div>
+  <div class="cover-title">
+    <div class="series">第六大洲 · 第八章</div>
+    <h1>草稿</h1>
+    <div class="subtitle">THE DRAFT</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第八章</div>
+  <h2 class="chapter-heading">草稿</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 十四个月</div>
+
+    <p>林然带沈淮去了她在阿什哈拉的"住所"——红盐湖旁边一间废弃的气象观测站，两层的石头小楼，窗户上没有玻璃，但朝南的那面被她用一块帆布挡住了风。</p>
+    <p>楼里的陈设令人心酸。一张从附近民房搬来的单人床垫，直接铺在地上。一张桌子上摞着十几本从城里各处收集来的空白笔记本——沃尔坎的商店里什么都有，货架上永远整整齐齐，但永远没有店员。桌角压着一叠手写的纸页，字迹密密麻麻。墙上用炭笔画了一条长长的竖线，上面刻着密密的横杠——计数用的。沈淮数了一下。四百二十三道。</p>
+    <p>十四个月。一个人。在一座空城里。</p>
+    <p>林然给他倒了一杯水。水是从城里的公共水龙头接的——沃尔坎的自来水系统完好运转，干净的水从不知道什么地方被泵上来，通过不知道谁维护的管道流到每一个水龙头。和面包一样，和电力一样，和一切一样——完美地运转着，没有人操作。</p>
+
+    <div class="dialogue">
+      <p>"你先喝水。然后我给你看一个东西。"</p>
+    </div>
+
+    <p>沈淮接过杯子。水是凉的，有一股矿物质的微涩。他喝了几口，把杯子放下，看着对面的林然。</p>
+    <p>她确实老了一些。不是那种岁月流逝的慢慢老去，而是一种过度消耗后的脆化——就像一支蜡烛燃烧到了最后三分之一，火焰还是一样大，但蜡身明显变细了。她的眼窝更深了，锁骨的轮廓从T恤领口突出来。</p>
+    <p>但眼睛没有变。依然是那种冷静的、不动声色地处理大量信息的眼睛。</p>
+
+    <div class="dialogue">
+      <p>"你一个人在这里待了十四个月。"沈淮说。不是疑问句。</p>
+      <p>"四百二十三天。"</p>
+      <p>"你怎么活下来的？"</p>
+      <p>"吃面包。喝水。偶尔去港口的冷库拿鱼——冷库一直在运转，里面的鱼不会变质，也不会减少。就像这里的面包一样。被拿走了，第二天又会出现在原来的位置。"她的语气像在陈述一个实验条件，"这个地方不会让你饿死。也不会让你受伤。我试过——第一个月的时候，我从二楼跳下来想测试这里的物理法则。摔得很疼，但骨头没断。伤口两天就长好了。"</p>
+    </div>
+
+    <p>沈淮花了几秒钟消化"我从二楼跳下来"这句话。</p>
+
+    <div class="dialogue">
+      <p>"你说它是一个草稿。什么意思？"</p>
+    </div>
+
+    <p>林然没有立刻回答。她走到桌前，把那叠手写纸页拿起来，翻到了中间某一页。</p>
+
+    <div class="dialogue">
+      <p>"我到这里之后做的第一件事是走完了整座城市。阿什哈拉，首都，地图上标注人口六十万。我走了三周。每一条街、每一栋楼、每一间房间——我都进去看了。"</p>
+      <p>"看到了什么？"</p>
+      <p>"所有的东西。"她说，"家具、衣物、食物、书籍、玩具、照片框——照片框是空的，没有照片。衣柜里有衣服，但尺码完全随机，像是从一个仓库里随便塞进去的。书架上有书，但翻开之后所有的书内容都一样——同一段文字无限重复，从第一页到最后一页。儿童房里有玩具，但玩具的种类只有三种，在整座城市的每一间儿童房里都是同样的三种。"</p>
+    </div>
+
+    <p>她停了一下。</p>
+
+    <div class="dialogue">
+      <p>"你理解这意味着什么吗？"</p>
+    </div>
+
+    <p>沈淮慢慢地点了点头。</p>
+
+    <div class="dialogue">
+      <p>"它的表面是完美的。从远处看——从卫星照片上看、从地图上看、从数据库里看——沃尔坎是一个完整的、细节丰富的国家。但当你走进来，走到足够近的距离去查看每一个细节，你就会发现它在'近处'是粗糙的。远处精美，近处潦草。就像——"</p>
+      <p>"就像一幅画。"林然接过话，"远看像照片，近看全是笔触和色块。画家只在观众能注意到的地方下了功夫。观众看不到的角落——书的内容、衣服的尺码、照片框里的照片——全是敷衍的。"</p>
+    </div>
+
+    <p>她把手写纸页放回桌上。</p>
+
+    <div class="dialogue">
+      <p>"这不是一个被制造出来投入使用的成品。这是一次试验性的构建——一个草稿。它在测试某种能力：能不能从零开始，在物理现实中叠加出一个看起来真实的国家？地理、历史、经济、文化——所有的维度都覆盖到，所有的数据都能自洽。但在底层，在人——"</p>
+    </div>
+
+    <p>她用手指点了点自己的太阳穴。</p>
+
+    <div class="dialogue">
+      <p>"在人的记忆里，它的安装是最难的部分。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 为什么是我们</div>
+
+    <p>沈淮坐在地上，背靠着墙。红盐湖的方向传来一种持续的、低沉的嗡鸣，不知道是风还是别的什么。天色没有变化——从他到达这里开始，太阳就一直在头顶正中的位置，不动。永恒的正午。</p>
+
+    <div class="dialogue">
+      <p>"你在备忘录里写了A/B/C三种类型跟意识状态的关系。但有一个问题你没有回答。"</p>
+      <p>"你说。"</p>
+      <p>"七十多亿人。改写发生的那天晚上，在东亚的时区里，至少有十几亿人处于各种睡眠状态。按你的理论，应该有相当比例的人是完全清醒的——深夜加班的、值夜班的、失眠的、在飞机上的。这些人都应该是A类，都应该完全没有沃尔坎的记忆。但实际上，论坛上的A类自述者只有几千人。全球可能也就几万人。"</p>
+    </div>
+
+    <p>他看着林然的眼睛。</p>
+
+    <div class="dialogue">
+      <p>"几亿应该清醒的人里，为什么只有几万人真的'幸免'了？剩下的那些——那些凌晨两点还在加班、在值班、在打游戏的人——他们为什么也被成功改写了？意识状态不是唯一的变量。"</p>
+    </div>
+
+    <p>林然的嘴角出现了一个极淡的弧度。不是笑，是一种"你终于问到正确问题了"的确认。</p>
+
+    <div class="dialogue">
+      <p>"我在备忘录里没写完。因为最后这一步，我是到了这里之后才想通的。"</p>
+    </div>
+
+    <p>她翻开了手写笔记里靠后的一页。纸上画了一张很简单的图——两个同心圆，外面一个大圈，里面一个小圈，大圈和小圈之间的区域被标注为"改写覆盖区"，小圈内部被标注为"核心现实"。</p>
+
+    <div class="dialogue">
+      <p>"改写不是无差别地作用于每一个人。它是有层级的。"她指着图说，"大圈是整个人类——七十多亿人。对这些人来说，改写的方式不是'向每个人的大脑逐一写入沃尔坎的记忆'。那太低效了，也不可能做到。它的方式是——修改现实本身。"</p>
+    </div>
+
+    <p>沈淮皱眉。</p>
+
+    <div class="dialogue">
+      <p>"什么意思？"</p>
+      <p>"我的意思是，对于绝大多数人来说，沃尔坎'一直都存在'不是因为他们的记忆被篡改了——而是因为在他们所处的那个版本的现实里，沃尔坎真的一直都存在。教科书上有它。地图上有它。联合国名单上有它。他们从小就生活在一个包含沃尔坎的世界里。他们的记忆是真实的——是基于一个被修改过的现实而形成的真实记忆。"</p>
+    </div>
+
+    <p>沈淮感觉脑子里有什么东西咔嚓了一下。</p>
+
+    <div class="dialogue">
+      <p>"你在说——改写的对象不是人。是世界。"</p>
+      <p>"对。它改写了现实的底层。地图、书籍、数据库、卫星影像——所有的物理和信息载体都被同步修改了。对于大多数人来说，这就够了。他们的记忆不需要被单独处理，因为他们的记忆本来就是建立在外部世界之上的。世界变了，记忆自然就跟着变了。"</p>
+      <p>"但是——"沈淮的思路追上来了，"但不是所有记忆都建立在外部世界之上。有些记忆是纯粹内部的——个人的直接经验、当下的感知、此时此刻正在做的事情。这些东西不依赖外部载体。"</p>
+      <p>"没错。"林然的语速加快了——这是她在学术讨论中接近核心论点时的标志，"改写发生的那一刻，绝大多数人不会注意到任何异常——因为他们身边的一切都同步变了。他们手边的地图变了，手机里的搜索结果变了，书架上的书变了——所以他们的认知自然而然地接受了'沃尔坎一直存在'这个现实。他们甚至不需要被'植入'记忆。他们只是在一个新的现实里正常地活下去了。"</p>
+    </div>
+
+    <p>沈淮缓缓吐出一口气。</p>
+
+    <div class="dialogue">
+      <p>"但有些人不同。有些人在改写发生的那一刻，正在做一件和旧版本现实高度绑定的事情。"</p>
+      <p>"比如你。"林然看着他，"你在改写发生的那一刻正盯着那片海域的地图。你的大脑里有一个实时的、鲜活的、基于直接观察的认知：'那里是海。'当现实被修改、那片海变成了陆地之后，你的大脑面临了一个冲突——外部世界说'这里有陆地'，但你自己几分钟前的直接经验说'这里是海'。你的大脑选择了相信自己的直接经验。"</p>
+    </div>
+
+    <p>沈淮想起了那个早晨。打开电视看到新闻的那一刻。他第一反应不是"我不知道这个国家"，而是"这个国家昨天还不在那里"。因为他昨天刚刚亲眼看过。</p>
+
+    <div class="dialogue">
+      <p>"所以A类不是因为'清醒就能免疫'。"他说，声音有些干，"A类是因为他们在改写发生的那一瞬间，恰好持有一条和旧现实直接相关的、鲜活的个人经验——而这条经验和新现实矛盾。大脑在冲突中选择了相信自己。"</p>
+      <p>"对。仅仅'清醒'是不够的。一个凌晨两点在打游戏的人，他也是清醒的，但他的意识没有接触地中海区域的任何信息。对他来说，现实一变，他周围的所有参照物都同步更新了，他没有任何理由怀疑。所以他被'自然地'纳入了新现实。不需要植入，不需要覆写——他自己就接受了。"</p>
+    </div>
+
+    <p>林然在桌上的同心圆图旁边写下了几行注释。</p>
+
+    <div class="doc-block" data-label="修正后的模型">
+      <p><strong>多数人（99.999%）：</strong>现实本身被修改。他们的记忆是基于新现实自然生成的，不存在"被篡改"的问题。他们的记忆是真的——在新现实里是真的。</p>
+      <p><strong>A类（约万分之一）：</strong>改写瞬间持有与旧现实直接矛盾的鲜活经验。新旧冲突导致大脑拒绝接受新现实。结果：完全保留旧记忆，没有沃尔坎。</p>
+      <p><strong>B类（约万分之三）：</strong>改写瞬间处于意识边缘状态（浅睡/半梦半醒），且持有与目标区域相关的模糊认知（如近期看过中东新闻、读过地中海旅游攻略等）。新现实和旧认知的碎片混合，形成"有知识但没有根"的植入感。</p>
+      <p><strong>C类（约万分之二）：</strong>改写瞬间处于深度睡眠，但在睡前不久有过与目标区域相关的深度思考或专业研究。旧版本以"深层记忆"形式保存在不易被覆盖的长期存储中，新版本则通过外部现实的同步修改生成。两套记忆共存。</p>
+      <p><strong>关键推论：</strong>异常者的产生条件不仅是"意识状态"，更是"在改写瞬间是否持有与被改写区域相关的个人经验"。两个条件同时满足，才会成为异常者。这就是为什么全球只有几万人——不是因为清醒的人少，而是因为在那个特定时刻恰好在关注地中海东部的人极少。</p>
+    </div>
+
+    <p>沈淮把这份笔记看了两遍。一种冰冷的清晰感从脑子里蔓延到四肢。</p>
+    <p>这个模型解释了一切。它解释了为什么沃尔坎能在一夜之间被七十亿人"接受"——因为对绝大多数人来说，根本不需要"接受"。世界变了，他们的认知就跟着变了，自然而然，无缝衔接。只有极少数倒霉蛋——或者说幸运儿——恰好在那一刻目光落在了裂缝上。</p>
+    <p>它也解释了为什么1997年那个物理学家被删除后几乎没有引起注意——当他从现实中被擦去的那一刻，除非有人正在凝视他的照片、阅读他的论文、或者和他握着手说话，否则没有人会察觉到任何异常。论文里他名字的位置变成空白，引用列表自动缩短，诺奖的分配比例从1/3变成1/2——而全世界只有一个维护不善的瑞典语数据库来不及同步更新。</p>
+
+    <div class="dialogue">
+      <p>"现在，"林然把笔记合上，"你理解了这个机制之后，想想另一个问题。"</p>
+      <p>"什么？"</p>
+      <p>"它为什么要做这个草稿？一个有完整地理、历史、文化、经济体系的虚构国家——建造这样的东西需要极其巨大的'算力'，不管那个算力是什么形式的。它这么做的目的是什么？"</p>
+    </div>
+
+    <p>沈淮想了想。</p>
+
+    <div class="dialogue">
+      <p>"测试。"他说，"你说过——这是一个草稿。它在测试自己的能力。测试它能不能在现实中无缝地添加一个不存在的东西，并且让绝大多数人毫无察觉。"</p>
+      <p>"对。但测试是为了什么？你不会为了测试本身而测试。测试是为了之后的正式行动。"</p>
+    </div>
+
+    <p>沈淮的心沉了下去。</p>
+
+    <div class="dialogue">
+      <p>"你的意思是——沃尔坎只是预演。它在为一次更大的改写做准备。"</p>
+    </div>
+
+    <p>林然没有点头也没有摇头。她只是看着他，那双被十四个月的孤独打磨得近乎透明的眼睛里，是一种他之前从未在她身上看到过的东西。</p>
+    <p>恐惧。</p>
+    <p>真正的、来自理解了某样东西之后的恐惧。</p>
+
+    <div class="dialogue">
+      <p>"我不知道它要改写什么。"她的声音很轻，"但从沃尔坎的规模来推断——一个国家级的草稿——正式行动的规模不会更小。可能是一个大洲，可能是一段历史，可能是——"</p>
+    </div>
+
+    <p>她没有说完。</p>
+    <p>窗外，红盐湖的粉红色水面在永恒的正午阳光下一动不动，像一面巨大的、凝固的镜子。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 不只我们</div>
+
+    <div class="timestamp">沃尔坎内部 · 时间不明</div>
+
+    <p>林然带沈淮去了阿什哈拉老城区的图书馆。</p>
+    <p>一座很漂亮的石头建筑，拱形的大门，门口台阶上长着青苔。里面的书架从地板延伸到天花板，上面密密麻麻地排满了书。灰尘在从窗户射进来的光柱里缓缓飘浮。</p>
+    <p>和其他建筑一样，书架上的书翻开来都是同一段文字的无限重复。但林然把他带到了图书馆二楼最深处的一个角落。</p>
+    <p>角落里有一面墙。</p>
+    <p>墙上密密麻麻地写满了字。不是印刷的——是手写的，用各种工具，有的用笔，有的用炭条，有的用指甲刮出来。</p>
+    <p>各种语言。中文、英文、阿拉伯文、日文、西班牙文、俄文——沈淮数了一下，至少有十几种文字。大部分他不认识，但其中几段中文和英文他看得懂。</p>
+
+    <div class="handwriting">
+      <p>我叫陈默。2016年8月到达此地。已过437天。找不到出口。如果有人看到这些字，请记住我的名字。中国，武汉。</p>
+    </div>
+
+    <div class="handwriting" style="font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.9; color:#444;">
+      <p style="font-style:italic;">My name is David Herrera. I was a physics professor at the University of Barcelona. I arrived here on what I believe was March 2009. If you are reading this, you are not alone. Neither am I — not anymore. There are traces of at least eleven people before me. None of them are here now. I don't know where they went.</p>
+    </div>
+
+    <div class="handwriting">
+      <p>二〇一一年三月。日本語が分かる方へ。ここには誰もいません。でも壁には字がある。私は十二人目です。</p>
+    </div>
+
+    <p>沈淮站在那面墙前面，手臂上的汗毛全部竖了起来。</p>
+    <p>至少二十几段留言。跨度从——如果日期可信的话——2003年到2023年。二十年间，至少有二十几个人来过这里。他们在墙上留下了自己的名字、来的日期、待了多久。有些人留了一段话，有些人只留了一个名字。</p>
+    <p>没有一个人留下了"我找到出口了"或者"我离开了"的信息。</p>
+    <p>他们只是——在某一刻之后——不再写了。</p>
+
+    <div class="dialogue">
+      <p>"他们都是异常者。"林然的声音从他身后传来，"在各自的时代，因为各种不同的原因察觉到了现实的异常——不一定是沃尔坎，也许是更早的其他改写。然后他们深入调查，就像我们一样，然后被送到了这里。"</p>
+      <p>"被送到这里之后呢？"</p>
+      <p>"我不知道。我来的时候这里已经没有人了。只有墙上的字。也许他们找到了出去的方法。也许——"</p>
+    </div>
+
+    <p>她没有把另一种可能性说出来。</p>
+    <p>沈淮回头看那些留言。他的目光停在了其中一段上——一段英文，笔迹非常潦草，几乎看不清，像是在极度疲惫或者极度紧张的状态下写的。</p>
+
+    <div class="handwriting" style="font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.9; color:#444;">
+      <p style="font-style:italic;">The draft is not for a country. A country is too small. I have been here for 911 days and I finally understand. The draft is a calibration. It is learning how human memory works — where it breaks, where it resists, where it bends. When it has enough data, it will rewrite something that matters.</p>
+      <p style="font-style:italic;">God help us all.</p>
+      <p style="font-style:italic;">— E.V., 2014</p>
+    </div>
+
+    <p>沈淮一个字一个字地读完了这段话。</p>
+    <p>草稿不是为了制造一个国家。国家太小了。这是一次校准。它在学习人类记忆的运作方式——记忆在哪里断裂，在哪里抵抗，在哪里弯折。当它积累了足够的数据之后，它会改写某样真正重要的东西。</p>
+    <p>他转过身，面对林然。</p>
+
+    <div class="dialogue">
+      <p>"E.V.是谁？"</p>
+    </div>
+
+    <p>林然走到另一面墙边，从一个不起眼的角落里抽出了一本皮面笔记本。笔记本已经很旧了，边缘磨损严重，但里面的字迹保存完好——蓝色墨水，字体工整，是那种受过严格学术训练的人才有的写法。</p>
+
+    <div class="dialogue">
+      <p>"他把自己的研究日志留在了这里。写了将近三年。九百多天。"她把笔记本递给沈淮，"他的全名是 Emil Varga。匈牙利人。理论物理学家。"</p>
+    </div>
+
+    <p>沈淮接过笔记本。第一页上用蓝色墨水写着一行端正的手写体：</p>
+    <p class="no-indent" style="text-align:center; font-style:italic; color:#555; margin:1em 0;">Notes on the Architecture of a False Reality — E. Varga, 2012-2014</p>
+
+    <div class="dialogue">
+      <p>"他在这里待了九百多天，然后消失了。就像墙上其他所有人一样。"林然说，"但他的笔记留下了。也许是他有意留下的——给下一个被送进来的人看。"</p>
+      <p>"他发现了什么？"</p>
+      <p>"他发现了校准的原理。"林然的声音变得很轻，"沃尔坎不是唯一的草稿，沈淮。E.V.在笔记里记录了他在到达这里之前发现的至少四次其他改写痕迹——都比沃尔坎更小、更隐蔽。一个在2005年消失的南太平洋小岛。一场在2008年被从历史中擦去的外交事件。一位在2011年被删除的诺贝尔奖得主——"</p>
+    </div>
+
+    <p>沈淮的呼吸停了一瞬。</p>
+
+    <div class="dialogue">
+      <p>"2011年。"他说，"林然，你之前发现的那个——那个1997年的第三位获奖者——"</p>
+      <p>"可能不是1997年消失的。可能是后来才被追溯性地删除的。时间线在改写之下是不可靠的。"林然看着他的眼睛，"E.V.的结论是：每一次改写——不管是添加还是删除——都是一次实验。每次实验的目的都是收集数据：人类记忆在什么条件下接受改写，在什么条件下产生异常。异常者被送到这里，本质上不是惩罚——是回收。我们是实验的废料，同时也是实验的数据。"</p>
+    </div>
+
+    <p>沈淮把笔记本放在膝盖上。他的手在抖。</p>
+    <p>回收。废料。数据。</p>
+    <p>他低头看了一眼手腕。</p>
+    <p class="no-indent" style="text-align:center; font-size:16px; color:var(--ink); margin:1em 0; letter-spacing:0.1em;">回来。我在这里。</p>
+    <p>墨迹还在。许漫的字。许漫的笔触。许漫握着他手腕时的温度。</p>
+    <p>他不是废料。</p>
+    <p>他深呼吸了一次。两次。然后他抬起头。</p>
+
+    <div class="dialogue">
+      <p>"E.V.在笔记里有没有提到怎么出去？"</p>
+      <p>"有。"林然说，"但那部分我还没完全看懂。他用了大量的物理学术语和数学公式，有些我不具备知识背景去理解。这也是我——"她顿了一下，"这也是我在墙上写下LR的原因。我需要人来。我一个人解不了E.V.的笔记。"</p>
+    </div>
+
+    <p>沈淮点了点头。他翻开笔记本，翻到最后三分之一的位置。密密麻麻的公式和示意图占满了页面，中间穿插着小段的文字注释。他的物理知识停留在高中水平，大部分符号他看不懂，但有些英文注释他能读。</p>
+    <p>其中一段被E.V.用红笔画了双线框。</p>
+
+    <div class="handwriting" style="font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.9; color:#444;">
+      <p style="font-style:italic;">The exit is not spatial. You cannot walk out of a draft. The draft exists as an information overlay on physical reality — to leave it, you must create an informational inconsistency large enough to force the system to expel you. In simple terms: you must become a bug that the system cannot tolerate.</p>
+    </div>
+
+    <p>出口不在空间里。你不能走出一个草稿。草稿是叠加在物理现实上的信息层——要离开它，你必须制造一个足够大的信息不一致，迫使系统把你排出去。简单来说：你必须成为一个系统无法容忍的bug。</p>
+    <p>沈淮把这段话读了三遍。然后他合上了笔记本。</p>
+
+    <div class="dialogue">
+      <p>"林然。"</p>
+      <p>"嗯。"</p>
+      <p>"你在这里待了十四个月。你一个人。没有人可以说话。你每天看着同样的太阳、同样的空城、同样的面包。"</p>
+      <p>"是。"</p>
+      <p>"你害怕吗？"</p>
+    </div>
+
+    <p>林然沉默了很长时间。图书馆里只有灰尘在光柱中飘浮的声音——如果灰尘有声音的话。</p>
+
+    <div class="dialogue">
+      <p>"前三个月很害怕。"她说，"后面就不怕了。后面是另一种东西。比害怕更深的东西。"</p>
+      <p>"什么？"</p>
+      <p>"怀疑自己是不是真的存在。"她的声音非常平，像在念一份天气预报，"在一个没有人的世界里待久了，你会开始怀疑——如果没有任何人看到你、听到你、回应你，你还算不算'存在'？我每天早上醒来的第一件事是对着镜子说自己的名字。'我叫林然。'说出声来。确认嘴唇在动，声带在振动，空气在传播。然后我才能开始一天的生活。"</p>
+    </div>
+
+    <p>沈淮什么都没说。他站起来，走到她面前。</p>
+    <p>他伸出右手。</p>
+    <p>不是握手的姿势。是把手掌平平地举在她面前——掌心朝向她——等着她碰上来的姿势。</p>
+    <p>林然看着他的手掌。然后她慢慢地抬起自己的手，掌心贴上去。</p>
+    <p>两个人的掌心贴在一起。沈淮的手比她的大一圈。她的手很凉，指节上有在石墙上刻字磨出的茧。</p>
+
+    <div class="dialogue">
+      <p>"你在。"沈淮说，"你叫林然。二十四岁。历史学博士生。喝美式不加糖。深夜喝很甜的速溶奶茶。说话声音不大。打字很快。你是C类记忆者。你发现了1/3。你被困在这里四百二十三天。"</p>
+    </div>
+
+    <p>他把那些他们用尽全力记住的、写在纸上的、反复抄录的细节，一条一条地念给她听。</p>
+
+    <div class="dialogue">
+      <p>"许漫记住了你。陆之衡记住了你。论坛上的人看过你的帖子。你存在。不是因为你对着镜子说了自己的名字——是因为我们记得你。"</p>
+    </div>
+
+    <p>林然的嘴唇抿紧了。她的眼眶泛了红，但没有哭。她不是那种会哭的人——或者说，十四个月的孤独已经把她的眼泪都蒸干了。</p>
+    <p>但她的手指在微微用力，握着沈淮的掌心，像抓着一根不会沉没的绳索。</p>
+
+    <div class="dialogue">
+      <p>"谢谢。"她说。只有这两个字。</p>
+    </div>
+
+    <p>然后她松开手，退后一步，重新变回了那个冷静的、精确的林然。</p>
+
+    <div class="dialogue">
+      <p>"现在。"她说，"我们来研究怎么成为一个bug。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 外面</div>
+
+    <div class="timestamp">现实世界 · 林然消失后第八天 · 拉纳卡民宿</div>
+
+    <p>许漫已经三十七个小时没有合眼了。</p>
+    <p>沈淮在入睡后的第二分钟就失去了意识——呼吸变深、眼球停止转动、整个人像是被关掉了电源。她确认他睡着之后，在他手腕上写完了那行字——笔尖在皮肤上滑过的时候她的手是稳的，出了房间之后才发现手指在抖——然后就开始了等待。</p>
+    <p>陆之衡设定了三天的上限。但许漫在心里把它缩短到了两天。</p>
+    <p>第一个二十四小时过得很慢。她每隔一小时进去看一次沈淮——他躺在床上，姿势一直没变，呼吸平稳，像在做一个很深很长的梦。她试过叫他、推他、往他脸上泼水。没有反应。体温正常，脉搏正常，就是叫不醒。</p>
+    <p>陆之衡在处理另一条线。</p>
+    <p>在沈淮入睡之前，他提了一个要求——把E.V.的笔记发到外面。林然不确定沃尔坎内部能否与外界通讯（她试过所有方式，全部失败），但沈淮有一个想法：如果他能把笔记的内容记在脑子里，回来之后再默写出来呢？</p>
+    <p>问题是，沈淮不懂物理。E.V.笔记中的大量数学公式他根本记不住。</p>
+    <p>所以陆之衡在做一件事——找一个懂理论物理的人。</p>
+    <p>他翻遍了通讯录、论坛、学术社交网络。他需要的人满足三个条件：第一，物理学背景，最好是理论物理；第二，了解或者至少愿意相信沃尔坎异象；第三，有胆量参与一项可能把自己送进一座空城监狱的研究。</p>
+    <p>第三个条件极大地缩小了候选范围。</p>
+    <p>第三十个小时的时候，他找到了一个人。</p>
+    <p>是论坛上的。ID叫"格林函数"。发帖不多，但每一条都很扎实——用非常专业的物理学框架分析沃尔坎异象的可能机制，措辞严谨，逻辑链完整。陆之衡翻了他所有的帖子，判断这个人至少是物理学博士水平。</p>
+    <p>他发了私信。对方回复得很快。</p>
+
+    <div class="forum-post" style="border-left-color: rgba(80,180,120,0.4);">
+      <div class="forum-header">
+        <span class="forum-id" style="color:rgba(80,180,120,0.8);">格林函数 → 半仙</span>
+        <span>私信</span>
+      </div>
+      <p>你好。我看到了你的消息。我是姜海清，清华物理系博士后，研究方向是量子信息论。</p>
+      <p>我是B类。改写发生那天晚上我在实验室熬夜写论文，但写的内容跟地中海没有关系。第二天早上我"知道"沃尔坎，但花了大概三天才意识到这些知识是凭空出现的。我的研究直觉告诉我这个现象的底层机制可能涉及信息论的基本问题，所以我一直在关注论坛。</p>
+      <p>你说你们有一位已故物理学家在沃尔坎内部留下的研究笔记，需要理论物理背景的人来解读？</p>
+      <p>我可以来。告诉我时间和地点。</p>
+    </div>
+
+    <p>陆之衡把这条消息转给了许漫。</p>
+    <p>许漫看了很久。她太累了，每一行字都需要多读一遍才能理解。但她抓住了关键信息——量子信息论。E.V.的笔记里充满了物理和数学。如果有人能读懂那些公式，也许就能找到让沈淮和林然回来的方法。</p>
+
+    <div class="dialogue">
+      <p>"让他来。"她说。</p>
+    </div>
+
+    <p>陆之衡点了点头，开始订机票。</p>
+    <p>许漫走进沈淮的房间。他还是那个姿势——仰面躺着，双手放在身体两侧，左手腕朝上。她写的那行字在昏暗的灯光下若隐若现。</p>
+    <p>她在床边坐了下来。</p>
+    <p>她不知道沈淮现在在哪里。在沃尔坎的哪条巷子里，看到了什么，找到林然了没有。她不知道他是安全的还是危险的，是清醒的还是迷失的。她不知道那行字管不管用——一个二十四岁的新闻编辑凭什么相信一行墨水字能把一个人从另一个维度拽回来？</p>
+    <p>但她确实相信。</p>
+    <p>不是相信那行字的魔力。是相信——沈淮会看着它，然后想起她。想起有一个人在等他。想起他答应过要回来。</p>
+    <p>她靠在床头的墙壁上，双腿蜷起来，下巴搁在膝盖上。</p>
+    <p>窗外是地中海的夜。深蓝色的天空上挂着稀疏的几颗星。某个地方——某个不在这个现实的坐标系里的地方——一座空城的图书馆里，两个人正对着一面写满了名字的墙壁，试图从一个死去的物理学家的笔记里找到回家的路。</p>
+    <p>许漫闭上眼睛。</p>
+    <p>她没有睡着。她只是在黑暗里安静地坐着，像灯塔在夜里安静地亮着——不是为了照亮什么，只是为了让远处的船知道，岸还在。</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第八章 · 完 ——</span>
+  </div>
+  <div class="end-note">第九章 · 格林函数 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

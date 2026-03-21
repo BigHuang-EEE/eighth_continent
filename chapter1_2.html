@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二章 · 双重底片</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --paper-dark: #e8e0d0;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+    --shadow: rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--paper);
+  }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #0d0d0d 0%, #1a1420 30%, #0f1a2a 60%, #0d0d0d 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 500px 500px at 40% 50%, rgba(60,80,140,0.12), transparent),
+      radial-gradient(ellipse 300px 500px at 65% 40%, rgba(139,37,0,0.08), transparent);
+    animation: pulse 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+  }
+
+  .cover-double {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0.06;
+  }
+
+  .cover-double::before,
+  .cover-double::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255,255,255,0.2) 50px, rgba(255,255,255,0.2) 51px),
+      repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(255,255,255,0.2) 50px, rgba(255,255,255,0.2) 51px);
+  }
+
+  .cover-double::after {
+    transform: rotate(2deg) scale(1.05);
+    opacity: 0.5;
+    animation: filmShift 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes filmShift {
+    from { transform: rotate(2deg) scale(1.05) translate(0, 0); }
+    to { transform: rotate(2.5deg) scale(1.05) translate(3px, -2px); }
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(180,200,240,0.6);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 80px rgba(60,80,140,0.3);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(245,240,232,0.35);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute;
+    bottom: 40px;
+    z-index: 2;
+    color: rgba(245,240,232,0.25);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .cover-scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: rgba(245,240,232,0.15);
+    margin: 12px auto 0;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BODY ── */
+  .chapter-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+    position: relative;
+  }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(28px, 5vw, 40px);
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeIn 1s 0.5s ease both;
+  }
+
+  .chapter-heading::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    opacity: 0.4;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .dot {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    line-height: 2;
+    text-indent: 2em;
+    margin-bottom: 0.6em;
+    color: #2a2a2a;
+  }
+
+  p.no-indent { text-indent: 0; }
+
+  .dialogue {
+    position: relative;
+    padding-left: 1.2em;
+    border-left: 2px solid var(--ghost);
+    margin: 1em 0;
+  }
+
+  .dialogue p { text-indent: 0; }
+
+  .thought {
+    color: #5a4a3a;
+    font-style: italic;
+    background: var(--ghost);
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin: 1.2em 0;
+  }
+
+  .thought p {
+    text-indent: 0;
+    color: inherit;
+  }
+
+  .break {
+    text-align: center;
+    margin: 40px 0;
+    color: var(--accent);
+    opacity: 0.3;
+    font-size: 18px;
+    letter-spacing: 0.6em;
+  }
+
+  .news-flash {
+    background: #1a1a1a;
+    color: #f5f0e8;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .news-flash::before {
+    content: 'BREAKING';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .news-flash p {
+    text-indent: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* ── FORUM STYLE ── */
+  .forum-post {
+    background: #1e1e2a;
+    color: #c8c8d4;
+    padding: 20px 24px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    font-family: 'Noto Serif SC', monospace;
+    position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+
+  .forum-post .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: rgba(200,200,212,0.5);
+    letter-spacing: 0.05em;
+  }
+
+  .forum-post .forum-id {
+    color: rgba(100,120,200,0.8);
+    font-weight: bold;
+  }
+
+  .forum-post p {
+    text-indent: 0;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  /* ── DOCUMENT/FILE STYLE ── */
+  .doc-block {
+    background: #faf8f4;
+    border: 1px solid #e0dbd2;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .doc-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .doc-block p {
+    text-indent: 0;
+    font-size: inherit;
+  }
+
+  /* ── TIMESTAMP ── */
+  .timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 0.3em;
+    margin: 32px 0;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .end-mark span {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 24px;
+    color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .end-note {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    letter-spacing: 0.2em;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .chapter-body { padding: 48px 20px 80px; }
+    p { line-height: 1.9; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-double"></div>
+  <div class="cover-title">
+    <div class="series">第六大洲 · 第二章</div>
+    <h1>双重底片</h1>
+    <div class="subtitle">DOUBLE EXPOSURE</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第二章</div>
+  <h2 class="chapter-heading">双重底片</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 林然</div>
+
+    <p>论坛帖子在四十八小时内炸了。</p>
+    <p>准确地说，是"午夜档案馆"那条帖子被人转到了微博和推特上，然后以某种几乎不可控的速度扩散开来。林然注册账号时帖子有两百多条回复，到第二天中午已经突破四千，服务器一度崩溃。站长不得不临时加了一台服务器，并且把这个帖子从"灵异怪谈"板块移到了新开设的专区里。</p>
+    <p>专区的名字叫"沃尔坎异象"。</p>
+    <p>林然花了整整一个通宵把所有有效回复筛了一遍。她是做学术的，整理文献是本能。她打开一个新的Excel表格，按照时间、地点、职业、记忆类型把每一条自述分门别类。到凌晨四点，她得出了一个初步结论——</p>
+
+    <div class="doc-block" data-label="研究笔记">
+      <p><strong>自述者可大致分为三类：</strong></p>
+      <p>A类——"空白型"。脑中完全没有关于沃尔坎的任何记忆，直到看到新闻才第一次知道这个国家。约占有效样本的23%。</p>
+      <p>B类——"植入型"。拥有关于沃尔坎的知识甚至"个人经历"，但能感知到这些记忆的异质性——它们"不像自己的"，缺乏情感锚点和具体来源。约占61%。</p>
+      <p>C类——"裂隙型"。同时拥有两套矛盾的记忆——一套包含沃尔坎，一套不包含——且两套记忆都同样清晰。约占16%。</p>
+      <p>注：绝大多数普通人（论坛之外）属于第四种情况——他们完全"记得"沃尔坎，且不觉得有任何异常。这些人不在样本中。</p>
+    </div>
+
+    <p>林然盯着这份笔记看了很久。</p>
+    <p>她自己属于C类。她既记得沃尔坎，又记得一个没有沃尔坎的世界。两套记忆像两张底片叠在一起，彼此矛盾，却都无比清晰。她不知道哪一张才是真正曝光过的那张。</p>
+    <p>但让她真正在意的是另一件事。</p>
+    <p>四千多条回复中，没有一个人自称是沃尔坎人。</p>
+    <p>一个拥有四百二十万人口的国家，在中文互联网上掀起了这么大的讨论，却没有一个沃尔坎公民现身说法、反驳"我们的国家当然存在"。没有愤怒的留学生，没有在那里做生意的华人，没有去那里旅游过的游客晒出签证和照片。</p>
+    <p>一个人都没有。</p>
+    <p>她在帖子里写下了这个发现，ID"双重底片"下面的第四条发言：</p>
+
+    <div class="forum-post">
+      <div class="forum-header">
+        <span class="forum-id">双重底片</span>
+        <span>#4 · 03:47</span>
+      </div>
+      <p>梳理了截至目前所有有效回复。有一个现象值得注意：本帖至今没有任何一位沃尔坎公民或去过沃尔坎的人参与讨论。四百二十万人口的国家。零。</p>
+      <p>另外提一个建议——如果有条件的朋友，能否尝试联系沃尔坎驻华使馆、拨打沃尔坎的国际电话区号、或者查一查有没有从中国直飞沃尔坎的航班？我想知道这个国家在物理层面上是否可以"抵达"。</p>
+    </div>
+
+    <p>发完这条的时候，她并不知道自己打开了什么。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 沈淮 / 许漫</div>
+
+    <p>沈淮是在第二天早上看到林然那条帖子的。</p>
+    <p>他已经开始密切关注那个论坛了。昨晚和许漫从咖啡馆出来之后，两人建了一个微信群，群名叫"地图校对组"，目前只有两个人。许漫往群里丢了那个论坛的链接，说"你看看这个叫双重底片的人，像是个搞研究的"。</p>
+    <p>沈淮看完了林然的分类笔记，沉默了很久。</p>
+
+    <div class="dialogue">
+      <p>沈淮：她说得对。我也注意到了——没有人声称自己去过沃尔坎。</p>
+      <p>许漫：我今天做了一件事。</p>
+      <p>沈淮：什么？</p>
+      <p>许漫：我让实习生查了沃尔坎驻华大使馆的地址。外交部网站上有，写的是朝阳区亮马桥路某号。</p>
+      <p>沈淮：然后？</p>
+      <p>许漫：然后我让实习生去了。</p>
+    </div>
+
+    <p>许漫发过来一张照片。</p>
+    <p>照片里是亮马桥路的一栋建筑，门口挂着一块铜牌，上面刻着沃尔坎共和国的国徽——一只展翅的红隼，脚下踩着一朵火焰状的花。铜牌锃亮，看起来像是刚擦过。</p>
+    <p>但大门紧闭。铁栅栏门上挂着一把崭新的锁。窗户里没有灯光，没有人影，也没有任何车辆停在院子里。</p>
+
+    <div class="dialogue">
+      <p>许漫：实习生说他按了门铃，没人应。打了外交部网站上列的使馆电话，空号。他在门口等了四十分钟，期间没有任何人进出。</p>
+      <p>许漫：我又让他去问了旁边哥伦比亚大使馆的保安，保安说"沃尔坎那个使馆一直关着的，好像在装修"。</p>
+      <p>沈淮：装修多久了？</p>
+      <p>许漫：保安想了一下，说"挺久了"。但说不出具体是几个月还是几年。</p>
+    </div>
+
+    <p>沈淮盯着那张照片，放大了铜牌的部分。国徽的细节非常精致——红隼的每一根羽毛都刻得清清楚楚，底座上还有一行他看不懂的文字，大概是沃尔坎语。</p>
+    <p>一个不存在的国家，有一座无人使用但维护完好的大使馆。</p>
+    <p>他把照片存进手机，然后做了一个决定。</p>
+
+    <div class="dialogue">
+      <p>沈淮：我想去沃尔坎。</p>
+      <p>许漫：什么？</p>
+      <p>沈淮：亲眼看看。地图上写着它在那里，四百二十万人生活在那里——那我就去看看它到底在不在。这是最直接的验证方式。</p>
+      <p>许漫：……你怎么去？</p>
+      <p>沈淮：查航班。查签证。实在不行，飞到塞浦路斯，租一条船。它就在那片海域里，如果它真的存在，我不可能到不了。</p>
+    </div>
+
+    <p>许漫没有立刻回复。过了大概两分钟，她发来一条消息：</p>
+
+    <div class="dialogue">
+      <p>许漫：我跟你一起。但在那之前，让我先做一件事。</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 许漫</div>
+
+    <p>许漫做的那件事，是以记者的身份打了一圈电话。</p>
+    <p>她先打给了中国民航局的一个朋友，问有没有任何中国航司运营过飞往沃尔坎的航线。朋友很爽快地答应帮她查，半小时后回了电话。</p>
+
+    <div class="dialogue">
+      <p>"查了，没有直飞航线。不过这正常，很多小国家都没有直飞中国的航班。你可以从伊斯坦布尔转——我看系统里沃尔坎的阿什哈拉机场代码是ASH，土耳其航空应该有航线。"</p>
+    </div>
+
+    <p>许漫打开土耳其航空的官网，搜索伊斯坦布尔到阿什哈拉的航班。</p>
+    <p>系统转了很久的圈。然后弹出一行字：</p>
+    <p class="no-indent" style="text-align:center; color:var(--accent); margin:1em 0; font-weight:bold;">抱歉，您搜索的航线暂无可用航班。</p>
+    <p>她换了一个订票平台，搜到了同样的结果。又换了一个，还是一样。她甚至试着搜索从拉纳卡——塞浦路斯最大的机场——飞往阿什哈拉的航班，两地在地图上相距不到三百公里。</p>
+    <p>没有航班。没有一个平台能售出一张飞往沃尔坎的机票。</p>
+    <p>许漫不死心。她又打了一圈旅行社的电话。问法是："我想去沃尔坎旅游，你们有相关的线路吗？"</p>
+    <p>四家旅行社，四个回答，惊人地相似：</p>
+
+    <div class="dialogue">
+      <p>"沃尔坎啊，那个地方挺小众的。我们目前没有现成的线路，但可以帮您做定制。"</p>
+      <p>"您要去沃尔坎？嗯……这个目的地比较冷门，我问问看，回头联系您。"</p>
+      <p>"沃尔坎，知道知道，地中海上的嘛。不过我们暂时没跟那边的地接社对接，您可以看看自由行。"</p>
+      <p>"这个……我查查啊……查了，没有这个目的地的签证代办服务。但您可以自己去使馆办，应该不难。"</p>
+    </div>
+
+    <p>每一个人都知道沃尔坎。没有一个人去过。没有一个人能提供任何实质性的帮助让她到达那里。</p>
+    <p>许漫放下电话，看着自己手写的笔记。一页纸上全是划掉的方案：直飞——无。转机——无。旅行社——无。签证——使馆无人。</p>
+    <p>她把这些信息整理成一条长消息，发到了"地图校对组"的群里。</p>
+
+    <div class="dialogue">
+      <p>许漫：总结——沃尔坎在所有数据库和信息系统中都"存在"。它有机场代码，有使馆地址，有签证类别。但在操作层面，所有通往它的路都是断的。像一扇画在墙上的门。</p>
+    </div>
+
+    <p>沈淮回了一个字：</p>
+
+    <div class="dialogue">
+      <p>沈淮：船。</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 陆之衡</div>
+
+    <p>陆之衡是从另一个方向撞上这堵墙的。</p>
+    <p>他落地北京后的第一件事不是回家，而是让助理约了一顿饭。对象是他记忆中那个沃尔坎矿业项目的中间人——一个叫old周的中年商人，常年在中东和北非做生意。陆之衡翻遍了自己的通讯录和微信聊天记录，确实找到了这个人，备注写着"周哥/沃尔坎矿业"。</p>
+    <p>但微信对话框是空的。</p>
+    <p>他记得加过这个人，记得备注是自己写的，但找不到任何一条聊天记录。他翻了手机相册，没有任何与沃尔坎相关的照片。翻了邮箱，搜"Volkan"——零结果。搜"沃尔坎"——也是零。</p>
+    <p>他还是拨了old周的电话。</p>
+
+    <div class="dialogue">
+      <p>"之衡！好久不联系了。"</p>
+      <p>"周哥，有个事想跟你确认一下。我们之前是不是聊过一个沃尔坎的矿业项目？"</p>
+    </div>
+
+    <p>电话那头愣了一下。</p>
+
+    <div class="dialogue">
+      <p>"沃尔坎？没有吧。我没做过沃尔坎的项目。"</p>
+      <p>"但我通讯录里你的备注写着沃尔坎矿业。"</p>
+      <p>"是吗？那可能是你记错了。我在那边没有人脉。"一顿，"不过沃尔坎矿确实好，稀土品位很高，业内都知道。你要是想做，我可以帮你问问。"</p>
+      <p>"你认识那边的人？"</p>
+      <p>"直接认识的……没有。但我可以托土耳其那边的关系问问。"</p>
+    </div>
+
+    <p>陆之衡挂了电话，在酒店房间里坐了很久。</p>
+    <p>他是一个商人，不关心什么形而上的问题。但他有一种直觉——一种让他赚了很多钱的直觉——那种直觉此刻正在尖叫。</p>
+
+    <div class="thought">
+      <p>沃尔坎的稀土矿储量在全球排名前十。地中海东部唯一的稀土出口国。GDP六百多亿美元。所有数据都在。但我联系不到任何一个真正跟那个国家有过实质业务往来的人。所有人都"知道"它，没有人真正"到过"它。</p>
+      <p>这不对。一个稀土出口国，全球矿业巨头不可能不往那里派人。力拓、必和必拓、嘉能可——它们在全世界每一个有矿的角落都有办事处。沃尔坎不可能是空白。</p>
+    </div>
+
+    <p>他打开电脑，开始查力拓集团的年报。沃尔坎的名字出现在"全球业务分布"的章节里，被归入"东地中海区域"。但他把那一章翻了三遍，没有找到任何关于沃尔坎具体项目的描述——没有矿区名称、没有产量数据、没有合资公司信息。只有一句话提到"公司持续关注沃尔坎的稀土资源潜力"。</p>
+    <p>"持续关注"。</p>
+    <p>在商业语言里，这意味着什么都没做。</p>
+    <p>陆之衡合上电脑，拿起手机，给助理发了一条消息：</p>
+
+    <div class="dialogue">
+      <p>"帮我查一下，有没有任何方式可以买到去沃尔坎的机票或者船票。任何方式。"</p>
+    </div>
+
+    <p>助理的回复在三小时后到达：</p>
+
+    <div class="dialogue">
+      <p>"陆总，查遍了，没有。航班不卖票，邮轮公司没有沃尔坎的停靠港，连塞浦路斯到沃尔坎的轮渡都查不到班次。我还问了两家包机公司，一家说阿什哈拉机场'暂不接受包机降落'，另一家说'需要沃尔坎方面的许可文件'但联系不上沃尔坎民航局。"</p>
+    </div>
+
+    <p>陆之衡看完这条消息，很久没有说话。</p>
+    <p>然后他做了一件出乎助理意料的事——他在浏览器里搜索了"沃尔坎 不存在"，然后点进了那个论坛。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 论坛</div>
+
+    <div class="timestamp">事件发生后第三天 · 论坛回复数：11,427</div>
+
+    <p>论坛已经变成了一个奇特的生态系统。</p>
+    <p>站长把"沃尔坎异象"专区细分成了几个子板块：个人自述、信息汇总、理论推测、验证行动。"双重底片"——也就是林然——成了"信息汇总"板块事实上的版主，她每天花十几个小时整理新的自述和数据，语言冷静，逻辑严密，像在写一篇超长的学术综述。</p>
+    <p>"验证行动"板块是最活跃的，也是最令人不安的。</p>
+    <p>有人试着用无线电呼叫沃尔坎的频率——沃尔坎的国际电话区号是+392，但所有拨出的电话都是忙音或空号。有人试着给沃尔坎国家邮政的邮箱发邮件——邮件没有被退回，但也没有收到任何回复。有人在海事网站上搜索驶往沃尔坎港口的船舶——AIS系统上能看到塞拉港的标注，但没有任何船只的航迹终点指向那里。</p>
+    <p>最引人注目的是一个ID叫"塞浦路斯的鱼"的用户。他声称自己是定居拉纳卡的华人渔民，帖子写得简短而干燥：</p>
+
+    <div class="forum-post">
+      <div class="forum-header">
+        <span class="forum-id">塞浦路斯的鱼</span>
+        <span>#8,231 · 14:09</span>
+      </div>
+      <p>我在地中海东部打了十一年鱼。沃尔坎在地图上的位置，我去过无数次。那片海域我闭着眼睛都能画出来。</p>
+      <p>没有岛。</p>
+      <p>从来没有。</p>
+      <p>我昨天特意又跑了一趟。GPS显示我已经进入"沃尔坎领海"了，但我眼前只有海。一望无际的海。水深大概一千多米，声呐上什么都没有。没有陆地，没有浅滩，没有暗礁。</p>
+      <p>但我手机上的地图显示，我正站在沃尔坎共和国中部，一个叫"阿卡奇高原"的地方。海拔八百米。</p>
+      <p>我他妈站在一千米深的海水上面，手机告诉我我在高原上。</p>
+    </div>
+
+    <p>这条帖子在一小时内被转发了两万次。</p>
+    <p>然后，在四十分钟后，它被删除了。</p>
+    <p>不是站长删的。站长在公告里说，他没有执行任何删除操作，帖子"从数据库里消失了"。他试着从备份中恢复，发现备份里也没有。好像这条帖子从未被写下过。</p>
+    <p>但截图已经传开了。那几行字——"我他妈站在一千米深的海水上面，手机告诉我我在高原上"——成了整个事件中传播最广的一句话。</p>
+    <p>有人试着联系"塞浦路斯的鱼"。私信没有回复。有人通过帖子里透露的信息推测他的身份，试着打拉纳卡华人社区的电话。</p>
+    <p>没有人认识这个人。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 沈淮</div>
+
+    <p>沈淮看到那条帖子的时候，已经在办签证了。</p>
+    <p>不是沃尔坎的签证——那个根本办不了——而是塞浦路斯的。他的计划是飞到拉纳卡，在当地租一条船，带着GPS和卫星电话，自己开到地图上标注的沃尔坎海域。</p>
+    <p>许漫觉得他疯了。</p>
+
+    <div class="dialogue">
+      <p>"你连船都不会开。"</p>
+      <p>"可以学。或者雇个当地人。"</p>
+      <p>"那个渔民说那里什么都没有。"</p>
+      <p>"对，然后帖子就被删了，人也联系不上了。这不是更说明有问题吗？"</p>
+    </div>
+
+    <p>许漫沉默了一会儿。</p>
+
+    <div class="dialogue">
+      <p>"如果那里真的什么都没有，"她慢慢地说，"那沃尔坎的四百二十万人在哪儿？那些建筑、港口、盐湖——卫星图上清清楚楚的那些东西——在哪儿？你有没有想过，渔民看到的和卫星看到的，可能都是真的？"</p>
+      <p>"一个地方不可能同时是海洋又是陆地。"</p>
+      <p>"如果沃尔坎根本不在我们以为的那种'存在'的范畴里呢？"</p>
+    </div>
+
+    <p>沈淮没有回答。他看着桌上摊开的地图册，沃尔坎的轮廓安静地印在纸页上。杏仁形的陆地，蜿蜒的海岸线，标注得一丝不苟的城市和山脉。</p>
+    <p>他用手指按住那块陆地，好像想要确认它在纸面上的触感。纸是真的，油墨是真的，印刷的凹凸感是真的。</p>
+    <p>但它所描绘的东西，可能什么都不是。</p>
+    <p>他还是决定去。</p>
+    <p>那天晚上，他在论坛上注册了一个账号。ID叫"沈"。他在"验证行动"板块发了一条帖子，只有三行字：</p>
+
+    <div class="forum-post">
+      <div class="forum-header">
+        <span class="forum-id">沈</span>
+        <span>#9,841 · 23:15</span>
+      </div>
+      <p>我打算亲自前往沃尔坎所在的海域。</p>
+      <p>下周出发。塞浦路斯中转。</p>
+      <p>如果有人愿意同行或提供帮助，请联系我。</p>
+    </div>
+
+    <p>半小时后，他收到了三条私信。</p>
+    <p>第一条来自"双重底片"：</p>
+
+    <div class="forum-post" style="border-left-color: rgba(180,80,60,0.4);">
+      <div class="forum-header">
+        <span class="forum-id" style="color:rgba(180,80,60,0.8);">双重底片 → 沈</span>
+        <span>私信 · 23:22</span>
+      </div>
+      <p>你好。我看到了你的帖子。我是C类记忆者（分类见我整理的文档），目前在北京，历史学博士生。我可以提供学术层面的支持。如果可以，我想加入。</p>
+      <p>另外，我强烈建议你在出发之前先看一下我汇总的所有"验证失败"案例。截至今天，已经有十七个人尝试通过不同方式抵达沃尔坎。全部失败。模式高度一致。</p>
+    </div>
+
+    <p>第二条来自一个他没见过的ID，叫"半仙"：</p>
+
+    <div class="forum-post" style="border-left-color: rgba(100,160,80,0.4);">
+      <div class="forum-header">
+        <span class="forum-id" style="color:rgba(100,160,80,0.8);">半仙 → 沈</span>
+        <span>私信 · 23:38</span>
+      </div>
+      <p>你好。我叫陆之衡，做投资的。我的助理刚花了三天时间试图买一张去沃尔坎的机票，用尽了所有渠道。</p>
+      <p>我对形而上学不感兴趣，但有一件事引起了我的注意——沃尔坎的稀土出口数据是真实的，它出现在全球大宗商品贸易的统计报表里。有人在从那里"买东西"。如果有人能从那里进口稀土，那就一定有货轮到过那里。我正在追踪这条线。</p>
+      <p>我可以出钱。你什么时候走？</p>
+    </div>
+
+    <p>第三条私信没有署名，没有ID，像是系统自动生成的消息。里面只有一行字。</p>
+
+    <div class="forum-post" style="border-left-color: rgba(200,50,50,0.5); background:#2a1a1a;">
+      <div class="forum-header">
+        <span class="forum-id" style="color:rgba(200,50,50,0.8);">[未知]</span>
+        <span>私信 · 23:51</span>
+      </div>
+      <p>不要去。</p>
+    </div>
+
+    <p>沈淮盯着最后那条消息，手指悬在键盘上方。</p>
+    <p>窗外起了风。三月的北京，春天还没有来，空气里有一股干燥的、带着尘土气息的寒意。他的书房里堆满了翻开的地图册和打印出来的网页截图，墙上的世界地图被他用红笔圈出了地中海东部那一小块区域。</p>
+    <p>他关上了那条消息，没有回复。</p>
+    <p>然后他打开和许漫的聊天窗口，打了一行字：</p>
+
+    <div class="dialogue">
+      <p>沈淮：队伍多了两个人。一个历史学博士生，一个有钱的投资人。</p>
+      <p>许漫：还有一个记者。</p>
+      <p>沈淮：你确定？</p>
+      <p>许漫：有人不想让我们去。这就是我确定的理由。</p>
+    </div>
+
+    <p>沈淮看着屏幕，嘴角动了一下。不是笑，更像是某种苦涩的、无可奈何的确认——从这一刻起，他们已经不可能回头了。</p>
+    <p>他把那个两人微信群的群名从"地图校对组"改成了"沃尔坎验证小组"，然后开始起草一份计划。</p>
+    <p>桌上的地图册还翻在地中海那一页。灯光下，沃尔坎的轮廓投下一小片阴影。像一枚杏仁，安静地嵌在那片蓝色里，不说话，不动弹。</p>
+    <p>仿佛在等他来。</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第二章 · 完 ——</span>
+  </div>
+  <div class="end-note">第三章 · 无人抵达的国度 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第五章 · 逆向审计</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--paper); }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #0f0f14 0%, #1a1420 30%, #14141e 65%, #0f0f14 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 500px 400px at 35% 55%, rgba(100,60,160,0.1), transparent),
+      radial-gradient(ellipse 400px 300px at 60% 45%, rgba(139,37,0,0.06), transparent);
+    animation: coverPulse 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes coverPulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+  .cover-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.3) 60px, rgba(255,255,255,0.3) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.3) 60px, rgba(255,255,255,0.3) 61px);
+  }
+
+  .cover-eraser {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 160px;
+    border: 1px dashed rgba(245,240,232,0.08);
+    border-radius: 4px;
+    opacity: 0.3;
+    animation: eraseFlicker 5s ease-in-out infinite;
+  }
+
+  .cover-eraser::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border: 1px dashed rgba(245,240,232,0.06);
+    border-radius: 2px;
+  }
+
+  @keyframes eraseFlicker {
+    0%, 100% { opacity: 0.3; }
+    30% { opacity: 0.15; }
+    50% { opacity: 0.35; }
+    70% { opacity: 0.1; }
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(160,130,200,0.5);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 80px rgba(100,60,160,0.2);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(13px, 1.8vw, 17px);
+    color: rgba(245,240,232,0.3);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute;
+    bottom: 40px;
+    z-index: 2;
+    color: rgba(245,240,232,0.2);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .cover-scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: rgba(245,240,232,0.12);
+    margin: 12px auto 0;
+  }
+
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .chapter-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+  }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0; animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(28px, 5vw, 40px);
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 48px;
+    opacity: 0; animation: fadeIn 1s 0.5s ease both;
+  }
+
+  .chapter-heading::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    opacity: 0.4;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; opacity: 0.5; }
+
+  p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    line-height: 2;
+    text-indent: 2em;
+    margin-bottom: 0.6em;
+    color: #2a2a2a;
+  }
+
+  p.no-indent { text-indent: 0; }
+
+  .dialogue { position: relative; padding-left: 1.2em; border-left: 2px solid var(--ghost); margin: 1em 0; }
+  .dialogue p { text-indent: 0; }
+
+  .thought { color: #5a4a3a; font-style: italic; background: var(--ghost); padding: 16px 20px; border-radius: 2px; margin: 1.2em 0; }
+  .thought p { text-indent: 0; color: inherit; }
+
+  .break { text-align: center; margin: 40px 0; color: var(--accent); opacity: 0.3; font-size: 18px; letter-spacing: 0.6em; }
+
+  .forum-post {
+    background: #1e1e2a;
+    color: #c8c8d4;
+    padding: 20px 24px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+
+  .forum-post .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: rgba(200,200,212,0.5);
+  }
+
+  .forum-post .forum-id { color: rgba(100,120,200,0.8); font-weight: bold; }
+  .forum-post p { text-indent: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+  .doc-block {
+    background: #faf8f4;
+    border: 1px solid #e0dbd2;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .doc-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .doc-block p { text-indent: 0; font-size: inherit; }
+
+  .timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 0.3em;
+    margin: 32px 0;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .tape-block {
+    background: #f7f3ec;
+    border: 1px solid #d8d0c0;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 2;
+    position: relative;
+  }
+
+  .tape-block::before {
+    content: '🔴 REC';
+    position: absolute;
+    top: 0; right: 0;
+    background: #e8e0d0;
+    color: #aa3333;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 3px 10px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+  }
+
+  .tape-block p { text-indent: 0; font-size: inherit; }
+  .tape-block .speaker { color: var(--accent); font-weight: bold; font-size: 13px; }
+  .tape-block .note { color: #999; font-style: italic; font-size: 12px; }
+
+  .news-flash {
+    background: #1a1a1a;
+    color: #f5f0e8;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .news-flash::before {
+    content: 'BREAKING';
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .news-flash p { text-indent: 0; color: inherit; font-size: inherit; }
+
+  /* ── REDACTED TEXT ── */
+  .redacted {
+    background: var(--ink);
+    color: var(--ink);
+    padding: 0 4px;
+    border-radius: 1px;
+    cursor: default;
+    user-select: none;
+    transition: all 0.3s;
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .end-mark span { font-family: 'Ma Shan Zheng', cursive; font-size: 24px; color: var(--accent); opacity: 0.5; }
+
+  .end-note { text-align: center; font-size: 13px; color: #999; margin-top: 16px; letter-spacing: 0.2em; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .chapter-body { padding: 48px 20px 80px; }
+    p { line-height: 1.9; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-eraser"></div>
+  <div class="cover-title">
+    <div class="series">第六大洲 · 第五章</div>
+    <h1>逆向审计</h1>
+    <div class="subtitle">REVERSE AUDIT</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第五章</div>
+  <h2 class="chapter-heading">逆向审计</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 沈淮</div>
+
+    <div class="timestamp">事件发生后第十五天 · 拉纳卡 · 民宿</div>
+
+    <p>他们没有立刻回国。</p>
+    <p>陆之衡在拉纳卡老城区租了一套两层的民宿做据点。底楼是客厅，被改造成了临时工作间：一张大桌子上摊满了打印出来的地图、论坛截图和林然的数据汇总；墙上用胶带贴着时间线和人物关系图；角落里堆着几箱矿泉水和速食面。看起来像某部犯罪电影里调查组的安全屋。</p>
+    <p>沈淮觉得这一切有些超现实。</p>
+    <p>十五天前他还是一个普普通通的大三学生，每天的烦恼不过是论文选题和下学期的课程安排。现在他站在地中海东岸一座陌生城市的出租屋里，和三个半个月前还不认识的人一起，试图证明现实正在被某种未知力量篡改。</p>
+    <p>他给导师发了一封邮件请长假。理由编得很蹩脚——"家里有事"。导师回了一句"注意身体"，没有多问。</p>
+    <p>沈淮有时候会想，如果他那天晚上没有打开Google Earth备课，如果他没有恰好关注那片海域，他是不是也会像其他几十亿人一样，心安理得地接受沃尔坎的存在？是不是也会"记得"它，就像记得任何一个他从未亲眼见过的国家一样？</p>
+    <p>但他偏偏记得。偏偏是他。</p>
+    <p>二十一年的人生里，这是第一次，他的"普通"变成了某种特权。</p>
+
+    <div class="thought">
+      <p>或者说——某种诅咒。</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 方法论</div>
+
+    <p>逆向审计的方法是林然设计的。</p>
+    <p>她把问题拆解成了三个层级。第一层：有没有其他"沃尔坎式"的国家或地区——即在地图和数据库中存在、但无法被物理抵达的实体？第二层：有没有被"删除"过的痕迹——即某些曾经存在的事物突然从所有记录中消失、但留下了逻辑缺口？第三层：人类记忆本身有没有更大范围的系统性篡改？</p>
+    <p>四个人分工合作。林然负责数据和文献；许漫负责调动媒体资源和信息核查；陆之衡负责商业和金融维度的验证；沈淮——</p>
+
+    <div class="dialogue">
+      <p>"你负责什么？"陆之衡坐在沙发上，翘着腿，一边喝咖啡一边看着他。</p>
+    </div>
+
+    <p>沈淮想了想。</p>
+
+    <div class="dialogue">
+      <p>"我是A类。完全没有沃尔坎记忆的人。你们三个多多少少都被'写入'了什么东西，只有我的脑子是干净的。"他拍了拍自己的太阳穴，"所以我负责当对照组。你们发现任何可疑的东西，拿来给我看——如果我也'记得'它，那它大概率是真的。如果我不记得……"</p>
+      <p>"那它可能是另一个沃尔坎。"许漫接过话。</p>
+      <p>"对。"</p>
+    </div>
+
+    <p>陆之衡放下咖啡杯，看了沈淮一会儿。</p>
+
+    <div class="dialogue">
+      <p>"你知道吗，小沈，你可能是全世界最有价值的人。"</p>
+      <p>"别叫我小沈，你才大我六岁。"</p>
+      <p>"大你六岁就有资格叫你小沈。"陆之衡笑了一下，那个笑容很短暂，像水面上的一个涟漪，很快就恢复了惯常的精明，"我说的是真的。A类记忆者在总体人群中只占百分之零点几——论坛上那几千人放到七十亿人口里几乎可以忽略不计。而你是这百分之零点几里唯一一个愿意站出来做点什么的。"</p>
+    </div>
+
+    <p>沈淮没接话。他转过头，看到许漫正看着他。她的目光很难读——里面有某种东西，介于审视和关切之间。她已经二十四岁了，在新闻行业做了两年多，养成了那种专业的、不轻易暴露情绪的表情管理。但此刻她的眼神里有一丝不太像她的柔软。</p>
+    <p>也许是担心。也许是别的什么。</p>
+    <p>她很快移开了目光。</p>
+
+    <div class="dialogue">
+      <p>"行了，"她说，语气恢复了职业化的利落，"开工。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 第一层：寻找其他"投影"</div>
+
+    <div class="timestamp">第十五天 — 第十九天</div>
+
+    <p>第一层的审计进行了四天，结果是：没有找到第二个沃尔坎。</p>
+    <p>林然和沈淮把全世界所有联合国承认的国家和地区过了一遍。每一个都能找到独立的、可交叉验证的物理存在证据——航班、贸易记录、外交互动、游客照片中的真实人脸。没有任何一个国家呈现出沃尔坎式的"数据完整但物理空洞"的特征。</p>
+    <p>许漫负责检查了所有"未被广泛承认的政治实体"——北塞浦路斯、阿布哈兹、索马里兰、德左——这些有争议的地区虽然国际地位模糊，但都有明确的物理存在：有人去过，有人住在那里，有可验证的人际网络。</p>
+    <p>陆之衡从金融角度做了一轮排查。他让助理团队调出了全球每一个国家的跨境贸易实际结算数据——不是统计年鉴里的汇总数字，而是银行间的SWIFT报文记录。所有国家的数据都对得上，只有沃尔坎是例外：它出现在宏观统计中，但在底层的逐笔结算数据里完全不存在。</p>
+
+    <div class="dialogue">
+      <p>"它的进出口数据是凭空出现在汇总报告里的，"陆之衡在一次碰头会上说，"底下没有支撑。就像一栋楼，你看到了楼顶的天线，但下面没有楼。"</p>
+    </div>
+
+    <p>这个发现本身很有价值，但它只是再次印证了他们已经知道的事情——沃尔坎是唯一的异常。</p>
+    <p>至少在"国家"这个尺度上是唯一的。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 夜谈</div>
+
+    <div class="timestamp">第十八天 · 23:40 · 民宿天台</div>
+
+    <p>进展缓慢的第四天夜里，沈淮一个人上了天台。</p>
+    <p>三月末的拉纳卡已经有了初夏的意思。夜风温热，带着海的咸味和某种不知名的花香。天台上有几把被晒褪了色的塑料椅子和一张摇摇晃晃的小圆桌。沈淮搬了一把椅子坐到边缘，望着远处海面上星星点点的渔火发呆。</p>
+    <p>他听到身后有脚步声。</p>
+    <p>许漫端着两罐啤酒走过来，递了一罐给他。</p>
+
+    <div class="dialogue">
+      <p>"睡不着？"</p>
+      <p>"嗯。"</p>
+    </div>
+
+    <p>她拉了一把椅子坐在他旁边。两人隔了半米的距离。拉环拉开的声音在夜里很清脆。</p>
+    <p>沉默了一会儿。</p>
+
+    <div class="dialogue">
+      <p>"你有没有想过回去？"许漫问。</p>
+      <p>"回哪儿？"</p>
+      <p>"回学校。回正常的生活。假装这一切没有发生过。"</p>
+    </div>
+
+    <p>沈淮喝了一口啤酒。廉价的本地品牌，有一股微苦的麦芽味。</p>
+
+    <div class="dialogue">
+      <p>"你呢？你有没有想过？"</p>
+      <p>"我天天都在想。"许漫笑了一下，但那个笑容没有到达眼睛，"我才工作两年。我攒了一年多的稿子想参加新闻奖评选。我的主编已经给我打了三个电话问我什么时候回来。如果我再不回去，我的职位可能就没了。"</p>
+      <p>"那你为什么不回去？"</p>
+    </div>
+
+    <p>许漫没有立刻回答。她看着远处的海面，啤酒罐在手里慢慢转着。</p>
+
+    <div class="dialogue">
+      <p>"因为我是B类。"</p>
+    </div>
+
+    <p>沈淮看向她。</p>
+
+    <div class="dialogue">
+      <p>"我脑子里有一整套关于沃尔坎的知识——完整的、流畅的、随时可以调用的。我甚至写过一篇四千字的深度稿，引文和数据全都能对上。但那些东西不是我的。"她的声音很轻，几乎被海风盖住，"你知道那种感觉吗？就好像你的大脑被人偷偷登录过，装了一些你不知道来源的软件。你没办法卸载它们，甚至没办法分辨哪些想法是你自己的、哪些是被装进来的。"</p>
+    </div>
+
+    <p>她停了一下。</p>
+
+    <div class="dialogue">
+      <p>"我回不去了。不是因为我不想——是因为如果我回去，我每天都会坐在编辑部里，看着屏幕上的新闻，想着：这条是真的吗？这个国家真的存在吗？这段历史真的发生过吗？我会疯掉的。"</p>
+    </div>
+
+    <p>沈淮不知道该说什么。他不擅长安慰人。二十一岁，谈过一次不到三个月的恋爱，大部分社交经验来自课堂小组讨论和线上论坛。面对许漫这样的坦诚，他的词汇表里找不到合适的回应。</p>
+    <p>所以他说了实话。</p>
+
+    <div class="dialogue">
+      <p>"我也回不去了。但理由跟你不一样。"他把啤酒罐放在地上，双手交叉抱在膝盖上，"你是因为不再相信世界。我是因为——我现在做的这件事是我二十一年来做过的唯一一件有意义的事。"</p>
+    </div>
+
+    <p>许漫转过头看他。</p>
+
+    <div class="dialogue">
+      <p>"你知道我之前是什么样的人吗？"他说，语气平淡得像在念一份自我介绍，"成绩中上，不好不坏。没有特别的兴趣爱好，没有特别想做的事。选国际关系是因为分数够、好像还行。上课听讲，期末复习，拿一个不高不低的绩点，然后不知道毕业以后要干什么。我妈说考研，那就考研。我爸在世的时候说出国，但他走了之后也没人再提了。"</p>
+    </div>
+
+    <p>他看着自己的手。</p>
+
+    <div class="dialogue">
+      <p>"然后沃尔坎出现了。突然之间我发现自己处在一个——一个只有我能做的位置上。我是A类。我的记忆是干净的。这不是我努力得来的，不是我考出来的——它就是发生在了我身上。但这是第一次，我觉得自己被需要。"</p>
+    </div>
+
+    <p>他意识到自己说得太多了。一种不太常有的羞赧涌上来。他低下头，从地上捡起啤酒罐，喝了一大口。</p>
+    <p>许漫没有说话。过了很久，她伸出手，轻轻拍了一下他的肩膀。就那么一下。力度很轻，几乎不像是安慰，更像是某种确认——确认他是真实的，确认他在这里。</p>
+
+    <div class="dialogue">
+      <p>"那就做下去。"她说。</p>
+    </div>
+
+    <p>他们又坐了一会儿。没有再说话。海风把某栋楼里传出的模糊音乐送到天台上，听不清旋律，只有节奏。远处的灯塔每隔几秒扫过一次海面。</p>
+    <p>沈淮想，这大概是他这辈子离另一个人最近的时刻——不是物理上的距离，而是某种更抽象的东西。两个被同一件不可能的事情拽出正常轨道的人，坐在地中海的夜风里，喝着难喝的啤酒，不知道明天会怎样。</p>
+    <p>奇怪的是，这种不知道让他感到安心。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 第二层：寻找被删除的痕迹</div>
+
+    <div class="timestamp">第二十天 — 第二十四天</div>
+
+    <p>第二层的审计是林然主导的。</p>
+    <p>她的方法很巧妙——如果某个事物被"删除"过，它不会在正面留下痕迹（因为所有记录和记忆都已经被改写），但它可能会在"旁边"留下逻辑缺口。就像从一本书里撕掉一页，你看不到那一页的内容，但你会发现页码不连续。</p>
+    <p>她设计了一套检测方法：寻找历史叙事中的"不明原因的跳跃"——即在因果链条上，结果存在但找不到充分的原因，或者原因存在但找不到合理的结果。</p>
+    <p>前三天一无所获。</p>
+    <p>第四天，她找到了一个东西。</p>
+    <p>不是一个国家。是一个人。</p>
+
+    <p>那天深夜，林然敲开了沈淮的房门。她很少这样——她是那种严格遵守社交距离的人，在民宿里也总是待在自己的房间。但那天她敲门的时候，沈淮从她的眼神里看到了他在别人身上从未见过的东西。</p>
+    <p>不是恐惧。是困惑。纯粹的、几乎带着学术性质的困惑。</p>
+
+    <div class="dialogue">
+      <p>"你知道1997年的诺贝尔物理学奖颁给了谁吗？"她站在门口问。</p>
+    </div>
+
+    <p>沈淮想了想。他是学国际关系的，对诺贝尔奖的记忆基本停留在和平奖的层面。</p>
+
+    <div class="dialogue">
+      <p>"不知道。"</p>
+      <p>"正常。大多数人不会记住每一年的诺奖得主。但你应该听说过激光冷却技术？"</p>
+      <p>"……听说过。用激光让原子几乎停止运动，然后就能观测量子效应什么的。高中物理有提过。"</p>
+      <p>"对。1997年的诺贝尔物理学奖颁给了三个人，因为他们发展了激光冷却和囚禁原子的技术。你查一下——现在——颁给了谁。"</p>
+    </div>
+
+    <p>沈淮拿起手机，搜索了"1997年诺贝尔物理学奖"。</p>
+    <p>维基百科的页面立刻弹出来。获奖者是两个人：Steven Chu 和 William Daniel Phillips。</p>
+    <p>两个人。</p>
+
+    <div class="dialogue">
+      <p>"你说颁给了三个人。"沈淮看着屏幕，"但这里只有两个。"</p>
+      <p>"对。"</p>
+    </div>
+
+    <p>林然走进房间，把笔记本电脑放在桌上。她打开了一个文档，里面是她过去几个小时的调查记录。</p>
+
+    <div class="doc-block" data-label="调查记录 #027">
+      <p><strong>发现过程：</strong>在审查1990年代物理学重大进展时间线时，注意到激光冷却技术的发展叙事存在逻辑缺口。</p>
+      <p><strong>具体表现：</strong>根据现有文献，Steven Chu在1985年发表了关于光学糖浆（optical molasses）的开创性论文，其中使用了一种被称为"亚多普勒冷却"的技术。但多篇引用此技术的后续论文提到"该方法基于[Chu]与[Phillips]的早期工作以及<span class="redacted">████████</span>的理论框架"。方括号内的第三个名字在所有文献中均为空白——不是被删除的痕迹，而是一个语法上完整但语义上空缺的位置，仿佛这里曾经有一个名字，现在没有了。</p>
+      <p><strong>进一步发现：</strong>1997年诺贝尔物理学奖的颁奖词中有一句话——"本年度物理学奖表彰的是在激光冷却和囚禁原子技术领域做出的奠基性贡献"——但颁奖金额的分配比例为1/2和1/2。诺贝尔奖的惯例是在获奖者之间平分：两人各1/2，或三人各1/3，或一人1/2、两人各1/4。两人各1/2是合理的，但我查到一份1997年的瑞典语原始公告存档，其中奖金分配写的是1/3、1/3、1/3。</p>
+      <p><strong>结论：</strong>1997年诺贝尔物理学奖可能曾颁发给三个人。第三个人的名字、身份和贡献已从所有记录中消失，但分配比例的底层数据未被完全改写。</p>
+    </div>
+
+    <p>沈淮看完了这份记录，手指不自觉地握紧了手机。</p>
+
+    <div class="dialogue">
+      <p>"你确定？"</p>
+      <p>"瑞典语公告的存档是从一个北欧的老旧学术数据库里挖出来的，那个数据库大概二十年没人维护过。如果'改写'确实发生过，它可能漏掉了这种边缘角落的数据。"林然推了推眼镜，"就像沃尔坎的改写漏掉了你一样。"</p>
+    </div>
+
+    <p>沈淮把手机放在桌上，坐在床沿，用力揉了一下脸。</p>
+    <p>一个人。一个真实存在过的物理学家。一个对人类科学做出过诺贝尔奖级别贡献的研究者。</p>
+    <p>被删除了。</p>
+    <p>不是死亡——死亡会留下讣告、墓碑、同事的悼念文章。是彻底的删除。从历史中、从文献中、从所有人的记忆中抹去。像他从来没有存在过一样。</p>
+    <p>但有一个数字——1/3——像地板砖缝里的一粒灰尘，没有被清扫干净。</p>
+
+    <div class="dialogue">
+      <p>"你脑子里有没有关于第三个人的任何记忆？"沈淮问。</p>
+      <p>"没有。但我属于C类——我能感知到缺失。我读到那些论文里的空白位置时，有一种非常强烈的违和感。就像一首你很熟悉的歌，有一个音被静音了，你不知道那个音是什么，但你知道那里应该有一个音。"</p>
+      <p>"我也没有。"沈淮摇了摇头，"A类。我脑子里什么都没有——不管是关于沃尔坎还是关于这个物理学家。"</p>
+    </div>
+
+    <p>他停了一下，意识到一件事。</p>
+
+    <div class="dialogue">
+      <p>"等一下。对于沃尔坎，A类是'完全没有记忆'——我们不知道沃尔坎的存在。对于这个物理学家，如果他被'删除'了，那所有人应该都是'A类'——没有人记得他。但你说你有一种'缺失感'。"</p>
+      <p>"对。"</p>
+      <p>"这是不是说明——'添加'和'删除'是不同的操作？添加沃尔坎时，它留下了三种类型的异常者。删除这个人时，留下的异常模式可能不一样？"</p>
+    </div>
+
+    <p>林然的眼睛亮了一下。那种在学术上触碰到关键节点时特有的光芒。</p>
+
+    <div class="dialogue">
+      <p>"你说得对。这可能意味着——三种类型不是随机分布的。它们反映了'改写'的某种底层机制。A、B、C不是三种人的差异——而是三种不同的改写方式在同一个人身上的不同表现。"</p>
+    </div>
+
+    <p>沈淮看着她，感觉自己触到了什么东西的边缘——一个巨大的、他还看不清全貌的拼图。</p>
+
+    <div class="dialogue">
+      <p>"林然，你能不能把你A、B、C分类的数据全部调出来？我想看看这三类人在其他维度上有没有什么共同点——年龄、职业、地理位置、或者任何别的东西。"</p>
+      <p>"已经在做了。"她合上笔记本，站起来走向门口，在门边停了一下，回头看了他一眼，"沈淮。"</p>
+      <p>"嗯？"</p>
+      <p>"你刚才的推理很好。很多博士生都做不到这种跨领域的直觉跳跃。"</p>
+    </div>
+
+    <p>她走了。</p>
+    <p>沈淮愣了一下。这是林然第一次主动夸他。她是那种惜字如金的人——在学术之外的领域几乎不发表评价，说话永远精确到让人有一点不舒服。所以这句话的分量比它听起来要重。</p>
+    <p>他关了灯，躺在床上，看着天花板。脑子里很乱。</p>
+    <p>沃尔坎是被"添加"的。一个物理学家是被"删除"的。添加和删除都不完美——都留下了可以被检测到的痕迹。三种类型的异常者可能对应着三种不同的改写机制。</p>
+    <p>这意味着什么？</p>
+    <p>他还不知道。但他隐约感觉到，答案可能跟他自己有关——跟他为什么是A类有关。不是运气，不是偶然。是某种他尚未理解的规则。</p>
+    <p>窗外传来远处的海浪声。均匀的、有节奏的、像呼吸一样的声音。</p>
+    <p>他在这个声音里慢慢睡着了。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 消失</div>
+
+    <div class="timestamp">第二十五天 · 07:12</div>
+
+    <p>第二十五天的早晨，沈淮醒来时发现民宿里弥漫着一股异常的安静。</p>
+    <p>平时这个时间，林然已经在客厅里工作了——她起得比所有人都早，六点准时下楼，先冲一杯速溶咖啡，然后打开笔记本电脑，几乎不发出任何声音地开始一天的数据分析。沈淮每天七点下楼时都会看到她坐在大桌子前面，面前的咖啡通常已经凉了。</p>
+    <p>但今天客厅是空的。</p>
+    <p>沈淮先是以为她睡过了头。他上楼敲了林然的房门。没人应。他又敲了三次，然后推门。</p>
+    <p>房间里没有人。</p>
+    <p>床铺整整齐齐，像是没有人睡过。桌上的笔记本电脑不在了。行李箱不在了。所有属于林然的个人物品都不在了。</p>
+    <p>就好像她从来没有住过这间房。</p>
+    <p>沈淮拿出手机，给林然发微信。消息发出去了，对方一直没有读。他打电话——提示音响了很久，没人接。</p>
+    <p>他下楼冲进许漫的房间。许漫正在刷牙，看到他的脸色，牙刷停在半空。</p>
+
+    <div class="dialogue">
+      <p>"林然不见了。"</p>
+    </div>
+
+    <p>三个人花了一整个上午搜寻。拉纳卡不大，可能的去处不多。他们查了她常去的那家图书馆、港口附近的咖啡馆、她有时候散步的海堤。</p>
+    <p>没有人见过她。</p>
+    <p>陆之衡动用了他在欧洲的关系网络，让人查了拉纳卡当天所有离港航班和渡轮的乘客名单。没有林然的名字。他又查了出租车公司的调度记录、酒店入住系统、信用卡消费记录。</p>
+    <p>零。</p>
+    <p>下午三点，沈淮做了最后一件事——他打开论坛，搜索ID"双重底片"。</p>
+    <p>搜索结果：无匹配。</p>
+    <p>他感觉自己的血液在瞬间变凉了。</p>
+    <p>他在地址栏里直接输入了林然之前那些帖子的链接——他存过书签。页面加载完成后，帖子还在。标题还在。内容还在。那些精确的数据分析、A/B/C分类框架、所有的研究笔记——全都在。</p>
+    <p>但发帖人的ID变成了一行灰色的小字：</p>
+    <p class="no-indent" style="text-align:center; color:#999; font-size:14px; letter-spacing:0.1em; margin:1em 0;">[已注销用户]</p>
+
+    <p>沈淮坐在屏幕前，双手按在键盘上，一动不动。</p>
+    <p>许漫站在他身后，一只手缓缓捂住了嘴。</p>
+    <p>陆之衡靠在门框上，双臂抱在胸前。他的脸上没有表情，但沈淮注意到他抱臂的双手在微微用力——指节发白。</p>
+
+    <div class="dialogue">
+      <p>"她发现了那个物理学家。"沈淮的声音干涩得几乎不像自己的，"她找到了'删除'的证据。然后——"</p>
+    </div>
+
+    <p>他没有把那句话说完。</p>
+    <p>不需要说完。</p>
+    <p>窗外，地中海的阳光明亮如初。海面上有帆船在滑行，远处的山坡上有人在浇花。世界运转如常，一秒不差。</p>
+    <p>只是少了一个人。</p>
+    <p>一个二十四岁的历史学博士生，戴银框眼镜，说话时习惯看着桌面，打字很快，笑声很少，熬夜的时候会喝一种很甜的速溶奶茶。</p>
+    <p>她说过一句话。沈淮此刻想起来了——在第一天的碰头会上，林然端着咖啡杯，用她惯常的、几乎不带感情的平淡语气说：</p>
+
+    <div class="thought">
+      <p>"如果我们在调查的对象有能力改写现实和记忆，那当它注意到我们的时候，它会怎么对付我们？最高效的方式不是威胁、不是阻拦——是删除。直接从所有人的记忆里抹掉我们的存在。干净利落，不留痕迹。"</p>
+      <p>"我们唯一的保险是——彼此记住彼此。如果有一天你们中的某个人消失了，而其他所有人都不记得这个人存在过——那个唯一还记得的人，就是证据。"</p>
+    </div>
+
+    <p>沈淮拿起手机，打开和林然的微信对话。聊天记录还在——所有的文字、图片、文件都在。但头像变成了灰色的默认头像，名字显示"微信用户"。</p>
+    <p>他截了屏。许漫也截了屏。陆之衡截了屏。</p>
+    <p>三个人坐在客厅里，沉默了很久。</p>
+    <p>然后沈淮站起来，走到墙上的那张调查关系图前面。他拿起一支红色的马克笔，在林然的名字旁边画了一个圆圈。</p>
+    <p>圆圈里写了一个字：</p>
+    <p class="no-indent" style="text-align:center; font-family:'Ma Shan Zheng',cursive; font-size:28px; color:var(--accent); margin:1em 0;">记</p>
+
+    <div class="dialogue">
+      <p>"我们记住她。"他说，声音有些抖，但很清楚，"不管发生什么。我们记住林然。记住她的名字，她的脸，她做过的每一件事。这是我们现在能做的最重要的事。"</p>
+    </div>
+
+    <p>许漫站起来，走到他身边，从他手里接过马克笔，在圆圈下面补了一行字：</p>
+    <p class="no-indent" style="text-align:center; font-size:14px; color:var(--accent); letter-spacing:0.1em; margin:0.5em 0;">林然 · 24岁 · 历史学博士生 · C类记忆者 · 她发现了1/3</p>
+
+    <p>陆之衡没有站起来。但他开口了，声音很低。</p>
+
+    <div class="dialogue">
+      <p>"它在看着我们。"</p>
+    </div>
+
+    <p>没有人反驳。</p>
+    <p>午后的阳光穿过窗帘的缝隙，在墙上画出一道明亮的斜线。斜线刚好穿过林然的名字。</p>
+    <p>光线像一根手指，按在那两个字上面。</p>
+    <p>温柔的，沉默的，不可挽回的。</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第五章 · 完 ——</span>
+  </div>
+  <div class="end-note">第六章 · 一个人的名字 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

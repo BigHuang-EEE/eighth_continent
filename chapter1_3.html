@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第三章 · 无人抵达的国度</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--paper); }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #0a0f1a 0%, #0d1a2a 35%, #0a1520 65%, #0a0f1a 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 50% 55%, rgba(30,80,130,0.15), transparent),
+      radial-gradient(ellipse 200px 200px at 52% 53%, rgba(139,37,0,0.1), transparent);
+    animation: seaPulse 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes seaPulse {
+    from { opacity: 0.6; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.02); }
+  }
+
+  /* sea waves overlay */
+  .cover-sea {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background:
+      repeating-linear-gradient(
+        175deg,
+        transparent,
+        transparent 20px,
+        rgba(30,80,130,0.03) 20px,
+        rgba(30,80,130,0.03) 21px
+      );
+    animation: waveShift 12s linear infinite;
+  }
+
+  @keyframes waveShift {
+    to { transform: translateX(-40px); }
+  }
+
+  /* compass rose */
+  .cover-compass {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border: 1px solid rgba(245,240,232,0.08);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.15;
+  }
+
+  .cover-compass::before {
+    content: '✦';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(245,240,232,0.3);
+  }
+
+  .cover-compass::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 60px;
+    background: rgba(245,240,232,0.1);
+    transform: translate(-50%, -50%) rotate(15deg);
+    animation: compassSpin 20s linear infinite;
+  }
+
+  @keyframes compassSpin {
+    to { transform: translate(-50%, -50%) rotate(375deg); }
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(120,170,220,0.5);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(42px, 9vw, 88px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 80px rgba(30,80,130,0.3);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(13px, 1.8vw, 17px);
+    color: rgba(245,240,232,0.3);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute;
+    bottom: 40px;
+    z-index: 2;
+    color: rgba(245,240,232,0.2);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .cover-scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: rgba(245,240,232,0.12);
+    margin: 12px auto 0;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BODY ── */
+  .chapter-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+  }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0; animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(28px, 5vw, 40px);
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 48px;
+    opacity: 0; animation: fadeIn 1s 0.5s ease both;
+  }
+
+  .chapter-heading::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    opacity: 0.4;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .dot {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    line-height: 2;
+    text-indent: 2em;
+    margin-bottom: 0.6em;
+    color: #2a2a2a;
+  }
+
+  p.no-indent { text-indent: 0; }
+
+  .dialogue {
+    position: relative;
+    padding-left: 1.2em;
+    border-left: 2px solid var(--ghost);
+    margin: 1em 0;
+  }
+
+  .dialogue p { text-indent: 0; }
+
+  .thought {
+    color: #5a4a3a;
+    font-style: italic;
+    background: var(--ghost);
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin: 1.2em 0;
+  }
+
+  .thought p { text-indent: 0; color: inherit; }
+
+  .break {
+    text-align: center;
+    margin: 40px 0;
+    color: var(--accent);
+    opacity: 0.3;
+    font-size: 18px;
+    letter-spacing: 0.6em;
+  }
+
+  .news-flash {
+    background: #1a1a1a;
+    color: #f5f0e8;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .news-flash::before {
+    content: 'BREAKING';
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .news-flash p { text-indent: 0; color: inherit; font-size: inherit; }
+
+  .forum-post {
+    background: #1e1e2a;
+    color: #c8c8d4;
+    padding: 20px 24px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+
+  .forum-post .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: rgba(200,200,212,0.5);
+  }
+
+  .forum-post .forum-id {
+    color: rgba(100,120,200,0.8);
+    font-weight: bold;
+  }
+
+  .forum-post p { text-indent: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+  .doc-block {
+    background: #faf8f4;
+    border: 1px solid #e0dbd2;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .doc-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .doc-block p { text-indent: 0; font-size: inherit; }
+
+  .timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 0.3em;
+    margin: 32px 0;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  /* ── GPS BLOCK ── */
+  .gps-block {
+    background: #0a1a0a;
+    color: #44cc66;
+    padding: 16px 20px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(68,204,102,0.15);
+  }
+
+  .gps-block p { text-indent: 0; color: inherit; font-size: inherit; font-family: inherit; }
+  .gps-block .gps-warn { color: #cc4444; }
+  .gps-block .gps-dim { color: rgba(68,204,102,0.4); }
+
+  /* ── RADIO STATIC ── */
+  .radio-block {
+    background: #1a1a1a;
+    color: #aaa;
+    padding: 16px 20px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .radio-block::before {
+    content: '📻 VHF CH.16';
+    position: absolute;
+    top: 0; right: 0;
+    background: #333;
+    color: #888;
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+
+  .radio-block p { text-indent: 0; color: inherit; font-size: inherit; font-family: inherit; }
+  .radio-block .static { color: #555; font-style: italic; }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .end-mark span {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 24px;
+    color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .end-note {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    letter-spacing: 0.2em;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .chapter-body { padding: 48px 20px 80px; }
+    p { line-height: 1.9; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-sea"></div>
+  <div class="cover-compass"></div>
+  <div class="cover-title">
+    <div class="series">第六大洲 · 第三章</div>
+    <h1>无人抵达的国度</h1>
+    <div class="subtitle">THE UNREACHABLE COUNTRY</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第三章</div>
+  <h2 class="chapter-heading">无人抵达的国度</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 拉纳卡</div>
+
+    <div class="timestamp">事件发生后第九天 · 塞浦路斯 · 拉纳卡</div>
+
+    <p>他们四个人在拉纳卡机场的到达大厅碰了头。</p>
+    <p>沈淮和许漫坐的是同一班飞机，从北京经伊斯坦布尔转机，飞了将近十五个小时。林然比他们早到半天——她本来就在欧洲参加一个学术会议，从巴黎飞过来只需要四小时。陆之衡最晚到，坐的是自己包的公务机，从香港直飞，落地时穿着一件剪裁考究的深蓝色风衣，拖着一只登机箱，看起来像是来度假的。</p>
+    <p>四个人在机场的星巴克坐下来。谁也没有急着说话。</p>
+    <p>这是他们第一次线下见面。此前的所有沟通都通过论坛私信和微信群完成。林然比沈淮想象的年轻——戴着一副银框眼镜，头发随意地扎成马尾，说话时习惯性地看着桌面而不是对方的眼睛。陆之衡比论坛上的语气更沉稳，也更老，眼角有明显的皱纹，但目光锐利得像一把没入鞘的刀。</p>
+    <p>许漫打破了沉默。</p>
+
+    <div class="dialogue">
+      <p>"船的事定了吗？"</p>
+    </div>
+
+    <p>陆之衡点了点头。</p>
+
+    <div class="dialogue">
+      <p>"定了。一条十八米的双体帆船，带柴油辅机，配了GPS、声呐、卫星电话和足够一周的补给。船长是本地人，希腊裔，叫尼科斯，跑了二十年地中海。"他顿了一下，"我没跟他说我们要去沃尔坎。只说了我们想去东南方向的深海区域钓金枪鱼。"</p>
+      <p>"为什么不直说？"林然问。</p>
+      <p>"因为我之前试过。"陆之衡的语气很平淡，"三天前我在拉纳卡港找了六个船长，跟他们说我要去沃尔坎。前五个都说'知道那个地方'，但接下来的反应完全一样——他们答应得很痛快，然后找各种理由推掉。一个说发动机坏了，一个说那几天有风暴，一个说签证手续没办好。第六个比较实在，他听完之后想了很久，说了一句话。"</p>
+    </div>
+
+    <p>三个人都看着他。</p>
+
+    <div class="dialogue">
+      <p>"他说：'我跑了三十年船，那片海我走过几百次，从来没有靠过岸。'"</p>
+      <p>"'没有靠过岸'是什么意思？"沈淮问，"是没去过，还是去不了？"</p>
+      <p>"我问了。他说他也不知道。他说每次航线经过那片海域，他都'知道'沃尔坎在那里，但他从来没有想过要靠过去看看。不是不愿意，是'没想过'。就像你每天路过一栋楼，你知道它在那里，但你从来没有走进去的念头——你甚至没有意识到自己从来没走进去过。"</p>
+    </div>
+
+    <p>咖啡馆里的背景音乐在放一首希腊语的流行歌。窗外，拉纳卡三月的阳光明亮而温暖，棕榈树的影子投在停车场的沥青地面上。一切都很正常。</p>
+
+    <div class="dialogue">
+      <p>"所以你找了一个不知道我们真正目的地的船长。"许漫说。</p>
+      <p>"对。等到了公海上再告诉他。到时候他想走也来不及。"</p>
+      <p>"这不太道德。"林然低声说。</p>
+      <p>"但有效。"陆之衡端起咖啡，"我们明天早上六点出发。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 海上 · 第一天</div>
+
+    <div class="timestamp">出发日 · 06:12 · 拉纳卡港</div>
+
+    <p>船叫"忒修斯号"。</p>
+    <p>沈淮第一次听到这个名字时愣了一下——忒修斯之船，那个经典的哲学悖论：如果一条船的每一块木板都被逐渐替换，最后它还是原来那条船吗？他不知道这是巧合还是某种冷幽默。</p>
+    <p>尼科斯是个五十多岁的壮实男人，皮肤被地中海的阳光晒成了深棕色，手背上有一道长长的旧疤。他不太说话，但动作利落，解缆、启动发动机、调整帆面，一气呵成。</p>
+    <p>船驶出拉纳卡港的时候，天刚亮。海面上漂着一层薄薄的晨雾，远处的海岸线在雾气中若隐若现。沈淮站在船头，看着塞浦路斯的轮廓慢慢缩小、变淡，直到完全消失在视野里。</p>
+    <p>然后就只剩下海了。</p>
+    <p>蓝得发黑的海，从四面八方涌过来，没有边际。</p>
+
+    <p>头两个小时一切正常。风向稳定，船速大约八节，朝着东南方向推进。林然拿着一台笔记本电脑坐在甲板上，实时记录GPS坐标和航向数据。许漫在用卫星电话和北京的同事联络。陆之衡坐在船尾，戴着墨镜，表情看不清。</p>
+    <p>沈淮在驾驶舱里和尼科斯待在一起。他在等一个合适的时机。</p>
+    <p>上午九点，他们已经驶出了塞浦路斯领海。沈淮看了一眼GPS，深吸一口气，走到尼科斯身边。</p>
+
+    <div class="dialogue">
+      <p>"尼科斯，我需要跟你说实话。"</p>
+      <p>"嗯？"</p>
+      <p>"我们不是去钓鱼的。我们要去沃尔坎。"</p>
+    </div>
+
+    <p>尼科斯的手没有离开舵轮，但他的身体有一个几乎看不出来的僵硬——就那么一瞬间，像被什么东西轻轻电了一下。</p>
+
+    <div class="dialogue">
+      <p>"沃尔坎。"他重复了一遍，语气里没有惊讶，没有愤怒，只是一种奇怪的空白。</p>
+      <p>"对。从这里往东南方向大约两百六十公里。你知道那个位置。"</p>
+    </div>
+
+    <p>尼科斯沉默了很久。他的目光投向前方的海面，那双被风浪磨粗了的手稳稳地握着舵轮，没有丝毫犹豫地维持着航向。</p>
+    <p>然后他说了一句话。声音很轻，像是在自言自语。</p>
+
+    <div class="dialogue">
+      <p>"我知道。我一直知道你们要去那里。"</p>
+      <p>"你什么意思？"</p>
+      <p>"我不知道我什么意思。"他皱着眉，好像在努力描述一种他没有词汇去形容的感觉，"我答应你们这趟活的时候就知道。但我又不知道。就像……就像你做梦的时候知道自己在做梦，但你还是照着梦里的逻辑在走。"</p>
+    </div>
+
+    <p>沈淮感觉背后起了一层薄薄的汗。</p>
+
+    <div class="dialogue">
+      <p>"那你愿意继续开吗？"</p>
+    </div>
+
+    <p>尼科斯看了他一眼。那个眼神很复杂——里面有恐惧，有好奇，还有一种更深层的、近乎宿命般的东西。</p>
+
+    <div class="dialogue">
+      <p>"我跑了二十年地中海。"他说，"每次经过那片海，我都觉得少了什么。像一首歌漏了一个音。我从来没停下来想过为什么。"他把舵轮微微向左修正了两度，"今天我想知道为什么。"</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 海上 · 第一天（续）</div>
+
+    <div class="timestamp">14:37 · 距沃尔坎"领海"约80公里</div>
+
+    <p>下午两点半，林然第一次喊了"停"。</p>
+    <p>她从甲板上跑进驾驶舱，笔记本电脑抱在胸前，脸上的表情介于兴奋和惊恐之间。</p>
+
+    <div class="dialogue">
+      <p>"GPS数据有异常。"</p>
+    </div>
+
+    <p>她把屏幕转给所有人看。她写了一个简单的脚本，每十秒自动记录一次GPS坐标，并计算船只的实际航速和航向偏差。数据在过去三个小时里非常稳定，航向、航速的波动都在合理范围内。</p>
+    <p>但从二十分钟前开始，数据出现了一个微妙的异常。</p>
+
+    <div class="gps-block">
+      <p class="gps-dim">// 航向记录 · 采样间隔10s</p>
+      <p>14:17:20 — POS 34.6812°N, 33.2107°E — HDG 138° — SPD 7.8kn</p>
+      <p>14:17:30 — POS 34.6805°N, 33.2119°E — HDG 138° — SPD 7.9kn</p>
+      <p>14:17:40 — POS 34.6798°N, 33.2131°E — HDG 138° — SPD 7.8kn</p>
+      <p class="gps-dim">// ...</p>
+      <p>14:22:10 — POS 34.6644°N, 33.2397°E — HDG 138° — SPD 7.9kn</p>
+      <p>14:22:20 — POS 34.6641°N, 33.2401°E — HDG 138° — SPD <span class="gps-warn">3.2kn</span></p>
+      <p>14:22:30 — POS 34.6639°N, 33.2403°E — HDG 138° — SPD <span class="gps-warn">1.4kn</span></p>
+      <p>14:22:40 — POS 34.6638°N, 33.2404°E — HDG 138° — SPD <span class="gps-warn">0.3kn</span></p>
+      <p>14:22:50 — POS 34.6638°N, 33.2404°E — HDG 138° — SPD <span class="gps-warn">0.0kn</span></p>
+      <p class="gps-dim">// 注意：发动机转速未变，风速未变，帆面未调整</p>
+    </div>
+
+    <div class="dialogue">
+      <p>"GPS显示我们的速度在下降，"林然指着数据说，"从将近八节一路降到了零。但你们感觉到船慢下来了吗？"</p>
+    </div>
+
+    <p>没有人感觉到。发动机的声音没变，风灌满帆面的压力没变，船身切开海浪的节奏没变。从体感上判断，他们仍然在以七八节的速度前进。</p>
+    <p>但GPS说他们停了。</p>
+
+    <div class="dialogue">
+      <p>"不对，"沈淮说。他走到船舷边，往海里扔了一个空矿泉水瓶。瓶子落水后迅速向船尾方向漂去，速度很快——这意味着船确实在动。</p>
+      <p>"船在动，但坐标不动。"许漫走过来，盯着屏幕，"这是什么意思？"</p>
+      <p>"有两种可能，"林然推了推眼镜，"第一种，GPS信号被干扰了。这在军事冲突区域不罕见，但通常会表现为坐标跳变而不是冻结。第二种——"</p>
+    </div>
+
+    <p>她停了下来，好像在斟酌用词。</p>
+
+    <div class="dialogue">
+      <p>"第二种是什么？"陆之衡问。</p>
+      <p>"第二种是我们确实在移动，但空间本身……不再让我们前进了。就像在跑步机上跑步——你的腿在动，地面在动，但你没有向前。"</p>
+    </div>
+
+    <p>驾驶舱里安静了几秒。只有发动机均匀的嗡嗡声和海浪拍打船身的节奏。</p>
+
+    <div class="dialogue">
+      <p>"继续开。"沈淮说。</p>
+    </div>
+
+    <p>尼科斯什么都没说，握紧了舵轮。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 海上 · 第一天（续）</div>
+
+    <div class="timestamp">16:52 · GPS坐标未变</div>
+
+    <p>又过了两个多小时。</p>
+    <p>GPS坐标仍然冻结在同一个位置。林然尝试了备用的北斗导航模块，数据完全一致——船没有在移动。她又拿出一台手持GPS接收器，结果也一样。三套独立的定位系统同时显示他们静止不动。</p>
+    <p>但海水在流，风在吹，发动机在转。矿泉水瓶扔下去依然飞速后退。</p>
+    <p>陆之衡是第一个注意到另一个异常的。</p>
+
+    <div class="dialogue">
+      <p>"太阳。"他指着天空，"你们看太阳。"</p>
+    </div>
+
+    <p>三月的地中海，太阳应该在下午五点左右开始明显西斜。但现在快五点了，太阳的位置和两个小时前几乎没有变化——依然高悬在偏南方的天空中，像一枚被钉住的金币。</p>
+    <p>许漫拿出手机看了一眼时间。手机显示16:52。她又看了一眼手腕上的机械表。</p>
+    <p>机械表显示14:37。</p>
+
+    <div class="dialogue">
+      <p>"我的表停了。"她举起手腕给大家看，然后把表贴在耳边听了一下，"不，没停。在走。但……"</p>
+      <p>"但指针没有前进。"林然接过话。她已经在笔记本上打开了一个新文件，飞快地记录着。"手机的时间是联网校准的，用的是卫星信号。机械表是纯物理机制。两个时间不一致。"</p>
+      <p>"哪个是对的？"沈淮问。</p>
+      <p>"如果太阳没有动……那机械表可能是对的。"</p>
+    </div>
+
+    <p>沈淮感觉自己的心脏被什么东西轻轻攥了一下。</p>
+    <p>他转向尼科斯。老船长的脸色不太好看——不是恐惧，而是一种更深沉的、近乎茫然的表情，像一个人走了很远的路突然发现脚下是空的。</p>
+
+    <div class="dialogue">
+      <p>"尼科斯，你的经验——这片海域正常吗？水流、风向、海水的颜色——有没有任何不对劲的地方？"</p>
+    </div>
+
+    <p>尼科斯慢慢地摇了摇头，又慢慢地点了点头。</p>
+
+    <div class="dialogue">
+      <p>"海是对的。风是对的。浪是对的。"他一字一顿地说，嗓音低沉沙哑，"但方向不对。"</p>
+      <p>"什么方向？"</p>
+      <p>"所有方向。"他伸手指了指前方，又指了指后方，然后指了指左舷和右舷，"我跑了二十年这片海。我不需要GPS就能告诉你哪个方向是拉纳卡，哪个方向是贝鲁特，哪个方向是亚历山大港。但现在——"他的手停在半空中，"我分不出来了。每个方向看起来都一样。"</p>
+    </div>
+
+    <p>沈淮顺着他的手看出去。</p>
+    <p>他说得对。海面上的景象在每个方向都完全一样——同样的蓝色，同样的波浪纹路，同样的天际线高度。没有任何参照物。没有远处的航船，没有飞过的海鸟，没有漂浮的垃圾或海草。</p>
+    <p>天和海之间是一条完美的、无限延伸的直线。</p>
+    <p>像一个密封的盒子。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 海上 · 折返</div>
+
+    <div class="timestamp">17:30（手机时间）/ 14:37（机械表时间）</div>
+
+    <p>是许漫提出掉头的。</p>
+
+    <div class="dialogue">
+      <p>"我们应该回去。"</p>
+    </div>
+
+    <p>她说这话的时候很平静，但沈淮注意到她的手指在微微发抖。</p>
+
+    <div class="dialogue">
+      <p>"还没到——"沈淮开口。</p>
+      <p>"沈淮。"许漫打断他，"我们的GPS冻结了两个多小时。太阳没有动。机械表没有动。我们可能已经不在正常的物理规则里了。如果我们继续往前开，我不确定我们还能回得来。"</p>
+    </div>
+
+    <p>沈淮想要反驳，但他看到了林然的脸。她没说话，但她合上了笔记本电脑。那台电脑从上船开始就没合上过。这个动作本身就是一种表态。</p>
+    <p>陆之衡靠在船舱壁上，双臂抱在胸前。</p>
+
+    <div class="dialogue">
+      <p>"掉头。"他说，"今天获取的数据已经够多了。冒险要算收益。"</p>
+    </div>
+
+    <p>沈淮闭上眼，深呼吸了一次。然后他点了点头。</p>
+
+    <div class="dialogue">
+      <p>"尼科斯，一百八十度，回拉纳卡。"</p>
+    </div>
+
+    <p>尼科斯转了舵。</p>
+    <p>船在海面上画了一道弧线，船头从东南方转向了西北方。发动机的声音没有变化，帆面在风中重新鼓胀起来。一切看起来和来时一模一样。</p>
+    <p>五分钟后，林然重新打开了笔记本电脑。</p>
+    <p>她盯着屏幕看了很久，然后抬起头，脸色发白。</p>
+
+    <div class="dialogue">
+      <p>"GPS恢复了。"</p>
+    </div>
+
+    <p>所有人围了过来。</p>
+
+    <div class="gps-block">
+      <p>17:35:10 — POS 34.6638°N, 33.2404°E — HDG 318° — SPD 7.7kn</p>
+      <p>17:35:20 — POS 34.6645°N, 33.2392°E — HDG 318° — SPD 7.8kn</p>
+      <p>17:35:30 — POS 34.6652°N, 33.2380°E — HDG 318° — SPD 7.7kn</p>
+      <p class="gps-dim">// 坐标正常更新 · 航向318°（西北） · 回航</p>
+    </div>
+
+    <div class="dialogue">
+      <p>"掉头的一瞬间就恢复了，"林然的声音有些干涩，"坐标、航速、航向——全部正常。就好像……"</p>
+      <p>"就好像它允许我们离开。"许漫把那句话说完了。</p>
+    </div>
+
+    <p>没有人接话。</p>
+    <p>船向着拉纳卡的方向驶去，身后是空旷的、蓝得发黑的地中海。太阳终于开始西斜了，光线从金色变成了橘红色，把海面染成了一大片碎金。</p>
+    <p>许漫的机械表重新开始走了。</p>
+    <p>沈淮回头望了一眼。身后的海面上什么都没有——没有陆地的轮廓，没有灯光，没有港口。但他手机上的地图显示，距离他们大约六十公里的地方，沃尔坎共和国安静地待在那里，它的首都阿什哈拉此刻应该正在亮起路灯，它的四百二十万居民应该正在回家吃晚饭，它的塞拉港应该正在卸载一天的货物。</p>
+    <p>应该。</p>
+    <p>他转回头，不再看了。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 拉纳卡 · 夜</div>
+
+    <div class="timestamp">22:14 · 拉纳卡老城区 · 一家希腊餐馆</div>
+
+    <p>回到港口之后，四个人谁也没提"休息"两个字。他们在码头附近的一家小餐馆坐了下来，点了一桌谁也没心思吃的烤鱼和沙拉。</p>
+    <p>尼科斯没有跟他们一起。他靠完船之后说了一句"我需要想想"，然后就沿着海堤走了，背影消失在夜色里。</p>
+    <p>林然最先开口。她打开笔记本电脑，调出了今天所有的数据。</p>
+
+    <div class="doc-block" data-label="航行记录 · 摘要">
+      <p><strong>异常起始坐标：</strong>34.6638°N, 33.2404°E（距沃尔坎"领海"外边界约78km）</p>
+      <p><strong>GPS冻结持续时间：</strong>约2小时53分（手机时间）/ 0分（机械表时间）</p>
+      <p><strong>异常现象：</strong>GPS坐标冻结 / 太阳位置固定 / 机械钟表停滞 / 海面方向感丧失</p>
+      <p><strong>恢复条件：</strong>船只掉头、航向远离沃尔坎的瞬间，所有异常同时消失。</p>
+      <p><strong>结论：</strong>某种机制在阻止物理接近。该机制不作用于物质本身（船体、发动机、海水均正常），而是作用于"距离"这个概念——你可以移动，但你无法缩短与目标之间的距离。</p>
+    </div>
+
+    <div class="dialogue">
+      <p>"不是墙。"林然合上电脑，"它不是一堵挡住你的墙。它更像是……空间的弹性。你往前走一步，空间就在你和它之间多出一步。你永远在接近，但永远到不了。"</p>
+      <p>"像芝诺悖论。"沈淮说。</p>
+      <p>"比芝诺悖论恶毒，"陆之衡把一块烤鱼送进嘴里，"芝诺的乌龟至少在理论上可以追上。这个东西连理论上的可能性都不给你。"</p>
+    </div>
+
+    <p>许漫一直在沉默。她在想另一件事。</p>
+
+    <div class="dialogue">
+      <p>"我在意的不是我们到不了，"她终于开口，"我在意的是，今天的整个过程里，没有任何外力阻止过我们。没有军舰拦截，没有无线电警告，没有任何人或任何机构告诉我们'不许靠近'。"</p>
+      <p>"所以？"</p>
+      <p>"所以阻止我们的不是某个组织或某个政府。是物理规则本身。或者说——是现实本身。"她看着窗外黑漆漆的海面，"就好像……现实在保护沃尔坎。它不让任何人揭穿它。"</p>
+    </div>
+
+    <p>这句话说完之后，桌上沉默了很久。餐馆老板在远处擦着杯子，电视里在放一场希腊足球联赛的重播，有人进球了，解说员在兴奋地喊叫。</p>
+    <p>陆之衡放下刀叉，擦了擦嘴。</p>
+
+    <div class="dialogue">
+      <p>"我今天在船上想了一件事，"他说，声音压得很低，"我们都在问'沃尔坎是什么'。但也许我们应该反过来问——是什么东西有能力凭空制造一个国家，把它塞进历史、地理、所有人的记忆和全球信息系统里，然后用物理法则本身来保护它不被揭穿？"</p>
+    </div>
+
+    <p>没有人回答。</p>
+
+    <div class="dialogue">
+      <p>"能做到这件事的东西，"他继续说，目光从每个人脸上扫过，"它不是人。也不是任何我们已知的技术。它是某种……更高层级的存在。"</p>
+      <p>"你在说什么？"沈淮皱起眉，"上帝？"</p>
+      <p>"我不知道该叫它什么。但我知道一件事——如果它能创造一个国家，它就能销毁一个国家。如果它能修改所有人的记忆，它就能修改任何东西。而我们——"他拿起桌上的酒杯，轻轻晃了晃，"我们现在所做的一切，它可能都看得到。"</p>
+    </div>
+
+    <p>餐馆的灯光在头顶轻轻晃了一下。可能是电压不稳，也可能是风。</p>
+    <p>四个人不约而同地往窗外看了一眼。</p>
+    <p>海面上什么都没有。夜色沉沉，只有远处灯塔的光芒每隔几秒扫过一次海面，像一只缓慢眨动的眼睛。</p>
+    <p>许漫拿起手机，看了一眼论坛。"沃尔坎异象"专区的帖子数量已经超过了五万条。就在他们出海的这十几个小时里，又有三个人声称尝试了独立的"抵达实验"——一个从土耳其南部海岸出发的，一个从黎巴嫩的的黎波里出发的，一个从以色列的海法出发的。</p>
+    <p>三个人，三个不同的方向，三个完全一致的结果。</p>
+    <p>GPS冻结。时间停滞。永远在接近，永远到不了。</p>
+    <p>许漫把手机放下，端起已经凉了的茶。</p>
+
+    <div class="dialogue">
+      <p>"那个论坛上有人提出了一个新问题，"她说，"我觉得比之前所有的问题都重要。"</p>
+      <p>"什么？"</p>
+      <p>"如果沃尔坎是被'制造'出来的——为什么？它的目的是什么？一个不可抵达的、只存在于信息和记忆中的国家，它被创造出来，是为了什么？"</p>
+    </div>
+
+    <p>灯塔的光又扫过来了。光柱穿过餐馆的窗户，在墙壁上画了一道短暂的白色弧线，然后消失。</p>
+    <p>沈淮看着那道消失的光，想起了今天在海上的感觉——那种被困在一个巨大的、蓝色的、没有出口的空间里的感觉。不是危险，不是恐惧，而是一种更深层的、存在性的不安。像突然意识到你一直生活在一幅画里，而画框之外是什么，你不被允许知道。</p>
+    <p>他拿起手机，打开论坛，在沈这个ID下发了一条新帖。标题很短：</p>
+
+    <div class="forum-post">
+      <div class="forum-header">
+        <span class="forum-id">沈</span>
+        <span>验证行动 · 22:41</span>
+      </div>
+      <p>今天的海上实验已结束。完整报告明天发布。</p>
+      <p>简要结论：沃尔坎不可抵达。不是"目前无法抵达"，是"物理上不可能抵达"。阻止我们的不是任何人类力量。</p>
+      <p>但我不打算放弃。如果正面走不通，那就换一条路。</p>
+      <p>我需要一个人——一个声称自己"去过"沃尔坎的人。不是"知道"它的人，不是"记得"它的人，而是真正踏上过那片土地、能说出街道名字和食物味道的人。</p>
+      <p>如果你是这样的人，或者你认识这样的人——请联系我。</p>
+    </div>
+
+    <p>帖子发出去之后，沈淮把手机扣在桌上。</p>
+    <p>他不知道这条帖子会不会像"塞浦路斯的鱼"那条一样消失。他不知道会不会有人回复。他不知道接下来该怎么办。</p>
+    <p>但他知道一件事——今天在海上，在GPS冻结、太阳凝固、时间停止的那两个多小时里，他第一次真正感受到了沃尔坎的存在。不是地图上的轮廓，不是数据库里的文字，不是别人记忆里的碎片——而是一种巨大的、无形的、不可名状的"在场"。</p>
+    <p>它就在那里。它比任何东西都真实。</p>
+    <p>只是你不被允许看到它。</p>
+
+    <p>窗外，拉纳卡的夜风从海面上吹来，带着盐和碘的气味。远处的海面黑沉沉的，看不到边。在那片黑暗的某个地方，一个不存在的国家正在度过它的夜晚。</p>
+    <p>也许那里也有人正坐在餐馆里吃饭。也许那里也有灯塔在海岸上旋转。也许那里的某个人正抬起头，望向他们所在的方向，想着同样的问题——</p>
+    <p>海的那一边是什么？</p>
+    <p>为什么我们永远到不了那里？</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第三章 · 完 ——</span>
+  </div>
+  <div class="end-note">第四章 · 去过的人 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
