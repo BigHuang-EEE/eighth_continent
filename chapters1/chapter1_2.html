@@ -405,9 +405,107 @@
     .chapter-body { padding: 48px 20px 80px; }
     p { line-height: 1.9; }
   }
+
+  /* ── BOOK COVER ── */
+  .book-cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #1a1a1a 0%, #2a1a14 40%, #3a1a0a 70%, #1a1a1a 100%);
+  }
+  .book-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 30% 60%, rgba(139,37,0,0.15), transparent),
+      radial-gradient(ellipse 400px 600px at 70% 30%, rgba(90,20,0,0.1), transparent);
+    animation: bc-pulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes bc-pulse { from { opacity: 0.6; } to { opacity: 1; } }
+  .book-cover .bc-map {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px);
+    animation: bc-drift 30s linear infinite;
+  }
+  @keyframes bc-drift { to { transform: translate(-40px, -40px); } }
+  .book-cover .bc-glitch {
+    position: absolute; width: 220px; height: 160px;
+    border: 1px solid rgba(139,37,0,0.3); border-radius: 4px;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    animation: bc-glitch 4s ease-in-out infinite; opacity: 0.25;
+  }
+  .book-cover .bc-glitch::after {
+    content: '?'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; color: rgba(139,37,0,0.4); font-family: 'Ma Shan Zheng', cursive;
+  }
+  @keyframes bc-glitch {
+    0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.03); }
+    52% { transform: translate(-48%, -50%) scale(1.03); }
+    54% { transform: translate(-52%, -50%) scale(1.03); }
+    56% { transform: translate(-50%, -50%) scale(1.03); }
+  }
+  .book-cover .bc-title {
+    position: relative; z-index: 2; text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+  .book-cover .bc-title .series {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: clamp(14px, 2vw, 18px);
+    color: var(--accent-light); letter-spacing: 0.4em;
+    text-transform: uppercase; margin-bottom: 24px; opacity: 0.8;
+  }
+  .book-cover .bc-title h1 {
+    font-family: 'Ma Shan Zheng', cursive; font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8; line-height: 1.2; letter-spacing: 0.08em;
+    text-shadow: 0 0 60px rgba(139,37,0,0.4);
+  }
+  .book-cover .bc-title .subtitle {
+    font-size: clamp(14px, 2vw, 18px); color: rgba(245,240,232,0.5);
+    margin-top: 20px; letter-spacing: 0.2em;
+  }
+  .book-cover .bc-title .volume {
+    margin-top: 48px; padding-top: 24px;
+    border-top: 1px solid rgba(245,240,232,0.12); display: inline-block;
+  }
+  .book-cover .bc-title .vol-cn {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: clamp(16px, 2.5vw, 22px);
+    color: rgba(245,240,232,0.7); letter-spacing: 0.15em;
+  }
+  .book-cover .bc-title .vol-en {
+    font-size: clamp(11px, 1.5vw, 14px); color: rgba(245,240,232,0.35);
+    letter-spacing: 0.3em; margin-top: 8px; text-transform: uppercase;
+  }
+  .book-cover .bc-scroll {
+    position: absolute; bottom: 40px; z-index: 2;
+    color: rgba(245,240,232,0.3); font-size: 13px; letter-spacing: 0.3em;
+  }
 </style>
 </head>
 <body>
+
+<!-- ── BOOK COVER ── -->
+<div class="book-cover">
+  <div class="bc-map"></div>
+  <div class="bc-glitch"></div>
+  <div class="bc-title">
+    <div class="series">THE EIGHTH CONTINENT</div>
+    <h1>第八大洲</h1>
+    <div class="subtitle">长篇小说 · 群像</div>
+    <div class="volume">
+      <div class="vol-cn">第一卷：我叫由臣一</div>
+      <div class="vol-en">Vol.1 — My Name Is Youchen Yi</div>
+    </div>
+  </div>
+  <div class="bc-scroll">向下阅读</div>
+</div>
 
 <!-- ── COVER ── -->
 <div class="cover">
