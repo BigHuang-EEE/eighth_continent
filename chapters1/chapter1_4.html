@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第四章 · 去过的人</title>
+<title>第四章 · 逆向审计</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -25,7 +25,6 @@
     overflow-x: hidden;
   }
 
-  /* ── COVER ── */
   .cover {
     height: 100vh;
     display: flex;
@@ -34,7 +33,7 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(170deg, #1a1410 0%, #2a1e14 30%, #1a1610 65%, #121010 100%);
+    background: linear-gradient(170deg, #0f0f14 0%, #1a1420 30%, #14141e 65%, #0f0f14 100%);
   }
 
   .cover::before {
@@ -42,40 +41,48 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 400px 400px at 45% 50%, rgba(180,120,60,0.08), transparent),
-      radial-gradient(ellipse 300px 300px at 55% 55%, rgba(139,37,0,0.06), transparent);
-    animation: warmPulse 8s ease-in-out infinite alternate;
+      radial-gradient(ellipse 500px 400px at 35% 55%, rgba(100,60,160,0.1), transparent),
+      radial-gradient(ellipse 400px 300px at 60% 45%, rgba(139,37,0,0.06), transparent);
+    animation: coverPulse 10s ease-in-out infinite alternate;
   }
 
-  @keyframes warmPulse {
-    from { opacity: 0.5; }
-    to { opacity: 1; }
+  @keyframes coverPulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+  .cover-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.3) 60px, rgba(255,255,255,0.3) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.3) 60px, rgba(255,255,255,0.3) 61px);
   }
 
-  /* portrait silhouette */
-  .cover-figure {
+  .cover-eraser {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80px;
-    height: 110px;
-    border-radius: 50% 50% 45% 45%;
-    border: 1px solid rgba(245,240,232,0.06);
-    opacity: 0.12;
+    width: 160px;
+    height: 160px;
+    border: 1px dashed rgba(245,240,232,0.08);
+    border-radius: 4px;
+    opacity: 0.3;
+    animation: eraseFlicker 5s ease-in-out infinite;
   }
 
-  .cover-figure::after {
+  .cover-eraser::before {
     content: '';
     position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 40px;
-    border-radius: 40% 40% 0 0;
-    border: 1px solid rgba(245,240,232,0.06);
-    border-bottom: none;
+    inset: 20px;
+    border: 1px dashed rgba(245,240,232,0.06);
+    border-radius: 2px;
+  }
+
+  @keyframes eraseFlicker {
+    0%, 100% { opacity: 0.3; }
+    30% { opacity: 0.15; }
+    50% { opacity: 0.35; }
+    70% { opacity: 0.1; }
   }
 
   .cover-title {
@@ -88,7 +95,7 @@
   .cover-title .series {
     font-family: 'ZCOOL XiaoWei', serif;
     font-size: clamp(14px, 2vw, 18px);
-    color: rgba(200,170,120,0.5);
+    color: rgba(160,130,200,0.5);
     letter-spacing: 0.4em;
     margin-bottom: 24px;
   }
@@ -99,7 +106,7 @@
     color: #f5f0e8;
     line-height: 1.2;
     letter-spacing: 0.08em;
-    text-shadow: 0 0 80px rgba(180,120,60,0.2);
+    text-shadow: 0 0 80px rgba(100,60,160,0.2);
   }
 
   .cover-title .subtitle {
@@ -128,17 +135,9 @@
     margin: 12px auto 0;
   }
 
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(8px); }
-  }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── BODY ── */
   .chapter-body {
     max-width: 680px;
     margin: 0 auto;
@@ -198,12 +197,7 @@
     gap: 8px;
   }
 
-  .section-label .dot {
-    width: 5px; height: 5px;
-    background: var(--accent);
-    border-radius: 50%;
-    opacity: 0.5;
-  }
+  .section-label .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; opacity: 0.5; }
 
   p {
     font-size: clamp(15px, 2.2vw, 17px);
@@ -215,34 +209,13 @@
 
   p.no-indent { text-indent: 0; }
 
-  .dialogue {
-    position: relative;
-    padding-left: 1.2em;
-    border-left: 2px solid var(--ghost);
-    margin: 1em 0;
-  }
-
+  .dialogue { position: relative; padding-left: 1.2em; border-left: 2px solid var(--ghost); margin: 1em 0; }
   .dialogue p { text-indent: 0; }
 
-  .thought {
-    color: #5a4a3a;
-    font-style: italic;
-    background: var(--ghost);
-    padding: 16px 20px;
-    border-radius: 2px;
-    margin: 1.2em 0;
-  }
-
+  .thought { color: #5a4a3a; font-style: italic; background: var(--ghost); padding: 16px 20px; border-radius: 2px; margin: 1.2em 0; }
   .thought p { text-indent: 0; color: inherit; }
 
-  .break {
-    text-align: center;
-    margin: 40px 0;
-    color: var(--accent);
-    opacity: 0.3;
-    font-size: 18px;
-    letter-spacing: 0.6em;
-  }
+  .break { text-align: center; margin: 40px 0; color: var(--accent); opacity: 0.3; font-size: 18px; letter-spacing: 0.6em; }
 
   .forum-post {
     background: #1e1e2a;
@@ -304,7 +277,6 @@
     font-family: 'ZCOOL XiaoWei', serif;
   }
 
-  /* ── TAPE RECORDER ── */
   .tape-block {
     background: #f7f3ec;
     border: 1px solid #d8d0c0;
@@ -333,36 +305,41 @@
   .tape-block .speaker { color: var(--accent); font-weight: bold; font-size: 13px; }
   .tape-block .note { color: #999; font-style: italic; font-size: 12px; }
 
-  /* ── PHOTO DESCRIPTION ── */
-  .photo-block {
-    background: #fff;
-    border: 1px solid #e0dbd2;
-    padding: 24px;
+  .news-flash {
+    background: #1a1a1a;
+    color: #f5f0e8;
+    padding: 20px 24px;
     border-radius: 2px;
     margin: 1.5em 0;
-    text-align: center;
+    font-size: 14px;
+    line-height: 1.8;
     position: relative;
+    overflow: hidden;
   }
 
-  .photo-block .photo-placeholder {
-    width: 100%;
-    height: 180px;
-    background: linear-gradient(135deg, #e8e0d0 0%, #d8d0c0 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #aaa;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    margin-bottom: 12px;
+  .news-flash::before {
+    content: 'BREAKING';
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .news-flash p { text-indent: 0; color: inherit; font-size: inherit; }
+
+  /* ── REDACTED TEXT ── */
+  .redacted {
+    background: var(--ink);
+    color: var(--ink);
+    padding: 0 4px;
     border-radius: 1px;
-  }
-
-  .photo-block .photo-caption {
-    font-size: 12px;
-    color: #888;
-    line-height: 1.6;
-    text-indent: 0;
+    cursor: default;
+    user-select: none;
+    transition: all 0.3s;
   }
 
   .end-mark {
@@ -372,20 +349,9 @@
     border-top: 1px solid var(--ghost);
   }
 
-  .end-mark span {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 24px;
-    color: var(--accent);
-    opacity: 0.5;
-  }
+  .end-mark span { font-family: 'Ma Shan Zheng', cursive; font-size: 24px; color: var(--accent); opacity: 0.5; }
 
-  .end-note {
-    text-align: center;
-    font-size: 13px;
-    color: #999;
-    margin-top: 16px;
-    letter-spacing: 0.2em;
-  }
+  .end-note { text-align: center; font-size: 13px; color: #999; margin-top: 16px; letter-spacing: 0.2em; }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--paper); }
@@ -477,6 +443,43 @@
     position: absolute; bottom: 40px; z-index: 2;
     color: rgba(245,240,232,0.3); font-size: 13px; letter-spacing: 0.3em;
   }
+
+  .fireball-moment {
+    position: relative;
+    text-align: center;
+    padding: 1.2em 0;
+    animation: fireReveal 1.8s ease-out both;
+  }
+  .fireball-moment::before {
+    content: '';
+    position: absolute;
+    inset: -20px -40px;
+    background: radial-gradient(ellipse 70% 120% at 50% 50%, rgba(255,110,20,0.10), transparent 70%);
+    animation: fireAura 3s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  .fire-word {
+    background: linear-gradient(to bottom, #ffb347 0%, #ff5500 50%, #cc1f00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 7px rgba(255,100,0,0.65));
+    animation: fireFlicker 1.8s ease-in-out infinite alternate;
+  }
+  @keyframes fireAura {
+    from { opacity: 0.5; transform: scaleY(0.95); }
+    to   { opacity: 1;   transform: scaleY(1.05); }
+  }
+  @keyframes fireFlicker {
+    0%   { filter: drop-shadow(0 0 5px  rgba(255,120,0,0.6)); }
+    25%  { filter: drop-shadow(0 0 11px rgba(255,70,0,0.85)); }
+    60%  { filter: drop-shadow(0 0 7px  rgba(255,160,0,0.5)); }
+    100% { filter: drop-shadow(0 0 13px rgba(255,50,0,0.9));  }
+  }
+  @keyframes fireReveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
 </style>
 </head>
 <body>
@@ -499,11 +502,12 @@
 
 <!-- ── COVER ── -->
 <div class="cover">
-  <div class="cover-figure"></div>
+  <div class="cover-grid"></div>
+  <div class="cover-eraser"></div>
   <div class="cover-title">
     <div class="series">第八大洲 · 第四章</div>
-    <h1>去过的人</h1>
-    <div class="subtitle">THE ONE WHO'S BEEN THERE</div>
+    <h1>逆向审计</h1>
+    <div class="subtitle">REVERSE AUDIT</div>
   </div>
   <div class="cover-scroll">向下阅读</div>
 </div>
@@ -512,278 +516,338 @@
 <div class="chapter-body">
 
   <div class="chapter-num">第四章</div>
-  <h2 class="chapter-heading">去过的人</h2>
+  <h2 class="chapter-heading">逆向审计</h2>
 
   <!-- ── 1 ── -->
   <div class="section">
-    <div class="section-label"><span class="dot"></span>壹 · 回声</div>
+    <div class="section-label"><span class="dot"></span>壹 · 沈淮</div>
 
-    <div class="timestamp">事件发生后第十二天</div>
+    <div class="timestamp">验证行动后第二天 · 拉纳卡 · 民宿</div>
 
-    <p>沈淮那条帖子发出去三天，收到了一千四百多条私信。</p>
-    <p>他和林然花了两天时间逐一筛选。绝大多数是B类记忆者——他们"知道"沃尔坎，甚至"记得"一些和沃尔坎相关的个人经历，但经不起追问。你问他在沃尔坎住的是哪家酒店，他答不上来。你问他吃的是什么菜，他说"地中海风味的"，但描述不出任何一道具体的食物。你问他拍了照片吗，他说拍了，但翻遍手机找不到。</p>
-    <p>所有人的"记忆"都像是同一个模板的变体：温暖的气候、蓝色的海岸、友善的当地人、好吃的食物——一张旅游宣传册里会有的所有元素，没有一样是真正属于个人的、不可替代的细节。</p>
-    <p>除了一个人。</p>
+    <p>经过讨论，没有人选择立刻回国。大家决定再做些尝试，看看事态的发展。</p>
+    <p>陆之衡本就是自己做生意，他当给自己放了个假。小天才林然读博两年已经赶上别人五年的成果，是导师的心头肉，她和导师打了个招呼，导师欣然同意她学术休假，还嘱咐她在塞浦路斯玩得开心。</p>
+    <p>许漫的情况比较复杂，她并不是闲人。但不知为何，她也选择了留下来。</p>
+    <p>陆之衡在拉纳卡老城区租了一套两层的民宿做据点。底楼是客厅，被改造成了临时工作间：一张大桌子上摊满了打印出来的地图、论坛截图和林然的数据汇总；墙上用胶带贴着昨天验证行动的时间线；角落里堆着几箱矿泉水和速食面。看起来像某部犯罪电影里调查组的安全屋。</p>
+    <p>"逆向审计"小组就这样在塞浦路斯拉纳卡成立了。</p>
+    <p>沈淮觉得这一切有些超现实。</p>
+    <p>十五天前他还是一个普普通通的大三学生，每天的烦恼不过是考试、科研和实习。现在他站在地中海东岸一座陌生城市的出租屋里，和一个半生不熟的师姐、两个半个月前还不认识的人一起，试图证明现实正在被某种未知力量篡改。</p>
+    <p>他给导师发了一封邮件请长假。理由编得很蹩脚——"家里有事"。导师回了一句"注意身体"，没有多问。</p>
+    <p>沈淮有时候会想，如果他那天早上没有看到沃尔坎总统纳迪尔·阿塔克的新闻，如果他没有恰好关注过那片海域，他是不是也会像其他几十亿人一样，心安理得地接受沃尔坎的存在？是不是也会"记得"它，就像记得任何一个他从未亲眼见过的国家一样？</p>
+    <p>但他偏偏记得。偏偏是他。</p>
+    <p>二十一年的人生里，这是第一次，他的"普通"变成了某种特权。</p>
 
-    <div class="forum-post" style="border-left-color: rgba(180,140,60,0.5);">
-      <div class="forum-header">
-        <span class="forum-id" style="color:rgba(180,140,60,0.9);">苏宛</span>
-        <span>私信 · 发送于第十一天 09:33</span>
-      </div>
-      <p>你好。我看到了你的帖子。我不确定你在找的人是不是我，但我需要跟人谈谈。</p>
-      <p>我去过沃尔坎。2019年夏天。一个人去的。</p>
-      <p>我知道你一定会像审问其他人一样审问我，所以我先回答几个你可能会问的问题：我住在阿什哈拉老城区的一家叫 Kızıl Han 的旅馆，红色外墙，门口有一棵很大的无花果树。我在塞拉港吃过一种当地的烤鱼，他们叫它 levrek，用一种红色的香料腌的，配酸奶和薄饼。红盐湖的水是粉红色的，走近了有一股硫磺味，湖边的泥是黑色的，当地人说可以涂在脸上美容。</p>
-      <p>我有照片。</p>
+    <div class="thought">
+      <p>或者说——某种诅咒。</p>
     </div>
-
-    <p>沈淮看到这条消息的时候是凌晨一点。他在酒店房间里坐了起来，把台灯打开，反复读了三遍。</p>
-    <p>然后他叫醒了隔壁房间的许漫。</p>
   </div>
 
   <div class="break">· · ·</div>
 
   <!-- ── 2 ── -->
   <div class="section">
-    <div class="section-label"><span class="dot"></span>贰 · 苏宛</div>
+    <div class="section-label"><span class="dot"></span>贰 · 方法论</div>
 
-    <div class="timestamp">事件发生后第十三天 · 拉纳卡 · 视频通话</div>
+    <p>逆向审计的方法是林然设计的，目的是系统性地检查现有世界知识体系中是否存在其他"沃尔坎式"异常——即拥有完整信息支撑但缺乏可验证的物理存在的实体。这是"逆向审计"小组在如今一头雾水的局面中想到的唯一破局点。</p>
+    <p>林然把问题拆解成了三个层级。第一层：有没有其他"沃尔坎式"的国家或地区——即在地图和数据库中存在、但无法被物理抵达的实体？第二层：将实体范围扩大到一般，有没有被插入人类记忆的其他事物？（一个不严谨的比方是曼德拉效应，即从未发生过的插入记忆）第三层：人类记忆本身有没有更大范围的系统性篡改？</p>
+    <p>四个人分工合作。林然负责数据和文献；许漫负责调动媒体资源和信息核查；陆之衡负责商业和金融维度的验证；沈淮——</p>
 
-    <p>苏宛，三十二岁，上海人，自由摄影师。</p>
-    <p>视频通话接通的时候，沈淮看到的是一个短发的女人，穿着一件洗得发白的灰色T恤，背后是一面贴满照片的墙。她的眼睛下面有明显的黑眼圈，但目光很清醒。</p>
-    <p>四个人都在场。陆之衡在酒店大堂用笔记本电脑接入，林然坐在沈淮旁边做记录，许漫坐在对面，面前摊着一个笔记本。</p>
-    <p>许漫主导了对话。她做了十几年采访，知道怎么提问。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">许漫：</span>苏宛，谢谢你愿意跟我们谈。我先问一个很直接的问题——你为什么联系我们？</p>
-      <p><span class="speaker">苏宛：</span>因为我快要疯了。</p>
-      <p><span class="note">（沉默，约三秒）</span></p>
-      <p><span class="speaker">苏宛：</span>这么说吧。我有一组关于沃尔坎的照片，一共六十多张，存在我的硬盘里。它们有拍摄日期、有GPS信息、有EXIF数据。它们是真实的照片，不是PS的，不是AI生成的——我是专业摄影师，我能分辨。但是……</p>
-      <p><span class="speaker">许漫：</span>但是？</p>
-      <p><span class="speaker">苏宛：</span>但是我不记得拍它们的过程。</p>
+    <div class="dialogue">
+      <p>"你负责什么？"陆之衡坐在沙发上，翘着腿，一边喝咖啡一边看着他。</p>
     </div>
 
-    <p>沈淮和许漫对视了一眼。</p>
+    <p>沈淮想了想。</p>
 
-    <div class="tape-block">
-      <p><span class="speaker">苏宛：</span>我"记得"我去过沃尔坎。我记得红盐湖，记得旅馆门口的无花果树，记得烤鱼的味道。但这些记忆是……你们知道那种感觉吗？就像你翻一本相册，你看到照片上的场景，你"知道"你在那里，但你不记得按下快门那一瞬间你在想什么、你旁边站着谁、风是从哪个方向吹来的。</p>
-      <p><span class="speaker">许漫：</span>你是说，你有关于沃尔坎的记忆，但那些记忆缺乏……主观体验？</p>
-      <p><span class="speaker">苏宛：</span>对。就是这个词。缺乏主观体验。我所有其他旅行的记忆都是有温度的——我记得在冰岛被风吹得睁不开眼，记得在印度被咖喱呛到咳嗽，记得在巴塔哥尼亚凌晨四点爬起来拍日出时的困意。但沃尔坎的记忆是——平的。像一张打印出来的照片，没有景深。</p>
-      <p><span class="note">（停顿）</span></p>
-      <p><span class="speaker">苏宛：</span>你的帖子说你们去了那片海域。你们到了吗？</p>
-      <p><span class="speaker">沈淮：</span>没有。GPS冻结了。我们无法接近。</p>
-      <p><span class="speaker">苏宛：</span>……所以那个地方真的到不了。</p>
-      <p><span class="speaker">沈淮：</span>至少物理上到不了。但你说你去过。你是怎么去的？</p>
-      <p><span class="speaker">苏宛：</span>这就是让我发疯的地方。我不记得。我记得"在"沃尔坎，但不记得"去"沃尔坎。没有起飞和降落的记忆，没有过海关的记忆，没有坐车从机场到酒店的记忆。就好像——我直接就在那里了。像一个梦，你不记得梦是怎么开始的，你只是突然就在梦里了。</p>
+    <div class="dialogue">
+      <p>"我是A类。完全没有沃尔坎记忆的人。你们三个多多少少都被'写入'了什么东西，只有我的脑子是干净的。"他拍了拍自己的太阳穴，"所以我负责当对照组。你们发现任何可疑的东西，拿来给我看——如果我也'记得'它，那它大概率是真的。如果我不记得……"</p>
+      <p>"那它可能是另一个沃尔坎。"许漫接过话。</p>
+      <p>"对。"</p>
     </div>
 
-    <p>林然一直在飞快地打字。她停下来，问了一个问题。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">林然：</span>你说你有照片。能给我们看吗？</p>
-      <p><span class="speaker">苏宛：</span>当然。这就是我联系你们的原因之一。</p>
+    <div class="dialogue">
+      <p>"好，那么就这样。"许漫说，"开工。"</p>
     </div>
-
-    <p>苏宛的脸从画面里消失了几秒钟。然后她回来了，手里多了一台笔记本电脑。她把屏幕转向摄像头，开始一张一张地翻照片。</p>
   </div>
 
   <div class="break">· · ·</div>
 
   <!-- ── 3 ── -->
   <div class="section">
-    <div class="section-label"><span class="dot"></span>叁 · 照片</div>
+    <div class="section-label"><span class="dot"></span>叁 · 第一层：寻找其他"投影"</div>
 
-    <p>第一张：一条狭窄的石板路，两侧是白色的、带拱门的低矮建筑，墙根长着紫色的三角梅。路尽头是一片碎金般的海面。光线是傍晚的，长长的影子从画面右侧切入。</p>
+    <div class="timestamp">第二天 — 第五天</div>
 
-    <div class="photo-block">
-      <div class="photo-placeholder">阿什哈拉老城 · 傍晚 · 2019.07.14</div>
-      <p class="photo-caption">EXIF: Canon EOS R · 35mm f/1.4 · ISO 200 · 1/500s<br>GPS: 34.8921°N, 33.4107°E</p>
-    </div>
-
-    <p>第二张：一家旅馆的外立面。红色的墙壁，木质的百叶窗，门口确实有一棵巨大的无花果树，叶子在阳光下泛着蜡质的光泽。门牌上用拉丁字母写着"Kızıl Han"。</p>
-
-    <div class="photo-block">
-      <div class="photo-placeholder">Kızıl Han 旅馆 · 午后 · 2019.07.15</div>
-      <p class="photo-caption">EXIF: Canon EOS R · 24mm f/2.8 · ISO 100 · 1/1000s<br>GPS: 34.8934°N, 33.4089°E</p>
-    </div>
-
-    <p>第三张：红盐湖。照片的色彩饱和度很高，但不像是后期调过的——湖水本身就是那种浓烈的、近乎不真实的粉红色。远处的山脊呈赭红色，天空是干燥地区特有的、深得发紫的蓝。湖面上倒映着一朵孤零零的白云。</p>
-
-    <div class="photo-block">
-      <div class="photo-placeholder">红盐湖 · 正午 · 2019.07.17</div>
-      <p class="photo-caption">EXIF: Canon EOS R · 16mm f/8 · ISO 100 · 1/2000s<br>GPS: 34.7653°N, 33.3412°E</p>
-    </div>
-
-    <p>沈淮盯着这些照片，感觉到一种奇怪的眩晕。</p>
-    <p>它们太真实了。光影关系是对的，景深是对的，镜头畸变是对的。甚至连照片里的灰尘和瑕疵都对——第二张照片的左下角有一道轻微的眩光，明显是镜头没有遮光罩时被侧面的阳光打到了。这不是AI能生成的东西，至少不是现有技术能做到的精度。</p>
-    <p>但他也注意到了另一件事。</p>
+    <p>第一层的审计进行了四天，结果是：没有找到第二个沃尔坎。</p>
+    <p>林然和沈淮把全世界所有联合国承认的国家和地区过了一遍。每一个都能找到独立的、可交叉验证的物理存在证据——航班、贸易记录、外交互动、游客照片中的真实人脸。没有任何一个国家呈现出沃尔坎式的"数据完整但物理空洞"的特征。</p>
+    <p>许漫负责检查了所有"未被广泛承认的政治实体"——北塞浦路斯、阿布哈兹、索马里兰、德左——这些有争议的地区虽然国际地位模糊，但都有明确的物理存在：有人去过，有人住在那里，有可验证的人际网络。</p>
+    <p>陆之衡从金融角度做了一轮排查。他让助理团队调出了全球每一个国家的跨境贸易实际结算数据——不是统计年鉴里的汇总数字，而是银行间的SWIFT报文记录。所有国家的数据都对得上，只有沃尔坎是例外：它出现在宏观统计中，但在底层的逐笔结算数据里完全不存在。</p>
 
     <div class="dialogue">
-      <p>"苏宛，六十多张照片里，有没有任何一张拍到了人？"</p>
+      <p>"它的进出口数据是凭空出现在汇总报告里的，"陆之衡在一次碰头会上说，"底下没有支撑。就像一栋楼，你看到了楼顶的天线，但下面没有楼。"</p>
     </div>
 
-    <p>视频那头安静了一瞬。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">苏宛：</span>……没有。</p>
-      <p><span class="note">（长时间沉默）</span></p>
-      <p><span class="speaker">苏宛：</span>我翻过了。全部六十七张。没有一张照片里出现了人。没有路人，没有游客，没有店主，没有渔民。甚至没有人的影子。每一张照片里的街道、广场、港口、市场——都是空的。</p>
-      <p><span class="speaker">许漫：</span>一个四百二十万人口的国家，你在那里待了——多久？</p>
-      <p><span class="speaker">苏宛：</span>照片日期显示是四天。从七月十四号到七月十七号。</p>
-      <p><span class="speaker">许漫：</span>四天，六十七张照片，没有一个人。</p>
-      <p><span class="speaker">苏宛：</span>但我"记得"有人。我记得旅馆老板是个胖胖的中年男人，胡子很浓。我记得塞拉港有个卖冰淇淋的小推车。我记得红盐湖边有一群中学生在春游。这些记忆都在我脑子里——但照片里一个人都没有。</p>
-    </div>
-
-    <p>林然停下了打字。</p>
-    <p>房间里安静了很长时间。视频通话的画面偶尔卡顿一下，苏宛的脸在像素间微微模糊又恢复清晰。她的表情很平静，但那种平静里有一种几乎让人心碎的疲惫——一个人独自面对了太久的、说出来没人相信的事情所特有的疲惫。</p>
-    <p>陆之衡打破了沉默。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">陆之衡：</span>苏宛。照片上的GPS坐标——你验证过吗？</p>
-      <p><span class="speaker">苏宛：</span>验证过。那些坐标在地图上确实对应沃尔坎境内的位置。但你们昨天的帖子说那些坐标对应的地方实际上是——</p>
-      <p><span class="speaker">陆之衡：</span>一千米深的海。</p>
-    </div>
-
-    <p>苏宛把嘴唇抿成了一条线。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">苏宛：</span>所以你们想问的其实是——我到底去了哪儿？</p>
-      <p><span class="speaker">沈淮：</span>不，我想问的是——你那四天到底经历了什么？在你的真实记忆里——不是被"植入"的那部分——2019年七月十四号到十七号，你在哪里？</p>
-    </div>
-
-    <p>苏宛的眼神发生了变化。</p>
-    <p>那是一种沈淮很熟悉的表情——他在论坛上的那些C类记忆者身上见过很多次。两套记忆同时存在的人，在试图分辨哪一套是真的时候，眼睛里会出现的那种微妙的、带着痛苦的振荡。</p>
-
-    <div class="tape-block">
-      <p><span class="speaker">苏宛：</span>我……不知道。</p>
-      <p><span class="note">（声音开始发抖）</span></p>
-      <p><span class="speaker">苏宛：</span>我查过自己的信用卡账单。那四天——七月十四号到十七号——没有任何消费记录。没有机票，没有酒店，没有刷卡，没有取现。但我也不在上海——因为十三号和十八号之间我的微信步数是零，没有叫过外卖，没有坐过出租车，没有跟任何人联系过。</p>
-      <p><span class="speaker">苏宛：</span>那四天，我从现实世界里消失了。然后我回来了，带着六十七张没有人的照片，和一脑袋不属于我的记忆。</p>
-    </div>
+    <p>这个发现本身很有价值，但它只是再次印证了他们已经知道的事情——沃尔坎是唯一的异常。</p>
+    <p>至少在"国家"这个尺度上是唯一的。</p>
   </div>
 
   <div class="break">· · ·</div>
 
   <!-- ── 4 ── -->
   <div class="section">
-    <div class="section-label"><span class="dot"></span>肆 · 裂痕</div>
+    <div class="section-label"><span class="dot"></span>肆 · 夜谈</div>
 
-    <p>通话结束之后，四个人在沈淮的房间里坐了很久。</p>
-    <p>林然在整理录音和笔记。许漫靠在窗边，看着窗外的夜色。陆之衡坐在椅子上，一条腿搭在另一条腿上，手指有节奏地敲着扶手。</p>
-    <p>沈淮站在他钉在墙上的那张地图前面，盯着沃尔坎的位置。</p>
-    <p>是许漫先开口的。</p>
+    <div class="timestamp">第五天 · 23:40 · 民宿天台</div>
 
-    <div class="dialogue">
-      <p>"我们现在知道的事情：第一，沃尔坎在物理空间中不可抵达。第二，但至少有一个人拥有在那里拍摄的、具有物理真实性的照片。第三，这个人在拍摄照片的时间段内从现实世界里'消失'了。第四，照片里没有任何人类。"</p>
-    </div>
-
-    <p>她转过身，面对其他三个人。</p>
+    <p>第四天夜里，沈淮一个人上了天台。</p>
+    <p>三月末的拉纳卡已经有了初夏的意思。夜风温热，带着海的咸味和某种不知名的花香。天台上有几把被晒褪了色的塑料椅子和一张摇摇晃晃的小圆桌。沈淮搬了一把椅子坐到边缘，望着远处海面上星星点点的渔火发呆。</p>
+    <p>他听到身后有脚步声。</p>
+    <p>许漫端着两罐啤酒走过来，递了一罐给他。</p>
 
     <div class="dialogue">
-      <p>"这意味着什么？"</p>
+      <p>"睡不着？"</p>
+      <p>"嗯。"</p>
     </div>
 
-    <p>林然推了推眼镜，很慢很慢地开口。</p>
+    <p>她踩着红底高跟鞋，拉了一把椅子坐在他旁边。两人隔了半米的距离。拉环拉开的声音在夜里很清脆。</p>
+    <p>沉默了一会儿。</p>
 
     <div class="dialogue">
-      <p>"我有一个假说。不成熟，但能解释目前所有的现象。"</p>
-      <p>"说。"</p>
-      <p>"沃尔坎是一个……投影。一个被叠加在现实之上的、信息层面的存在。它拥有完整的地理数据、历史叙事、文化细节——这些东西存在于所有的数据库、书籍和人类的记忆中。但它没有物理实体。那片海域就是海，没有陆地，没有城市，没有人。"</p>
-      <p>"那苏宛的照片怎么解释？"沈淮问。</p>
-      <p>"苏宛拍到的可能不是'真实的沃尔坎'——因为没有真实的沃尔坎。她拍到的是……投影本身。她以某种我们不理解的方式，进入了那个信息层。就好像一个人走进了一幅全息影像里——建筑是'真的'，街道是'真的'，光影是'真的'，但没有人。因为人不是投影的一部分。人只是'记得'自己在那里。"</p>
+      <p>"你有没有想过回去？"许漫问。</p>
+      <p>"回哪儿？"</p>
+      <p>"回学校。回正常的生活。假装这一切没有发生过。"</p>
     </div>
 
-    <p>房间里的空调在安静地运转。嗡嗡声在夜晚显得格外清晰。</p>
+    <p>沈淮喝了一口啤酒。廉价的本地品牌，有一股微苦的麦芽味。</p>
 
     <div class="dialogue">
-      <p>"你的意思是，"陆之衡慢慢地说，"沃尔坎是一个没有居民的国家。四百二十万人口是假的。所有人'记得'的那些沃尔坎人——总统、外交官、商人、渔民——都不存在。"</p>
-      <p>"对。这也能解释为什么论坛上从来没有沃尔坎人现身。不是因为他们不上中文互联网——而是因为他们不存在。"</p>
+      <p>"你呢？你有没有想过？"</p>
+      <p>"我天天都在想。"许漫笑了一下，但那个笑容没有到达眼睛，"我才工作两年。我攒了一年多的稿子想参加新闻奖评选。我的主编已经给我打了三个电话问我什么时候回来。如果我再不回去，我的职位可能就没了。"</p>
+      <p>"那你为什么不回去？"</p>
     </div>
 
-    <p>沈淮感觉自己的脊背在发凉。</p>
+    <p>许漫没有立刻回答。她看着远处的海面，啤酒罐在手里慢慢转着。</p>
 
     <div class="dialogue">
-      <p>"但这就引出了一个更大的问题，"他说，声音有些干涩，"谁制造了这个投影？为什么？"</p>
+      <p>"大抵是因为我没法回去了。"</p>
     </div>
 
-    <p>没有人回答。</p>
-    <p>许漫走到桌边，拿起一支笔，在笔记本上写了两行字。她把笔记本翻过来给大家看：</p>
-    <p class="no-indent" style="text-align:center; margin:1.5em 0; font-weight:bold; letter-spacing:0.05em;">如果它能添加一个国家——<br>它还添加过什么？删除过什么？</p>
-    <p>这个问题像一块石头砸进了一池静水。</p>
-    <p>沈淮想起了第一天那个论坛帖子里有人写过的话——"如果它能在一夜之间出现，那什么东西能在一夜之间消失？"当时他觉得那只是一个修辞。但现在，结合林然的假说，这个问题的含义突然变得无比具体而恐怖。</p>
-    <p>如果现实可以被编辑——添加一个国家只是最新的一次操作——那在此之前呢？有多少东西被悄无声息地改写过？有多少记忆被替换过？有多少人、多少城市、多少历史事件……此刻"存在"于所有人的认知中，但其实从未发生过？</p>
-    <p>或者反过来——有多少曾经真实存在的东西，被删除了？</p>
-    <p>而他们浑然不觉。</p>
-    <p>就像全世界在沃尔坎出现之前浑然不觉一样——如果不是沈淮恰好在那一天晚上看过那片海域的地图，如果不是那几千个不知道为什么没有被完全改写的"异常者"，没有人会发现这件事。</p>
-    <p>也许以前也发生过。也许发生过很多次。也许每一次都很完美，没有留下任何痕迹。</p>
-    <p>也许这一次只是出了一点差错。</p>
+    <p>沈淮看向她。</p>
 
     <div class="dialogue">
-      <p>"我们不能只盯着沃尔坎。"许漫的声音很轻，但很坚定，"我们需要检查其他东西。其他国家，其他历史事件，其他'一直存在'的事物。如果沃尔坎是一个bug——一次不完美的编辑——那也许还有其他的bug。"</p>
+      <p>"我脑子里有一整套关于沃尔坎的知识——完整的、流畅的、随时可以调用的。我甚至写过一篇四千字的深度稿，引文和数据全都能对上。但那些东西不是我的。"她的声音很轻，几乎被海风盖住，"你知道那种感觉吗？就好像你的大脑被人偷偷登录过，装了一些你不知道来源的软件。你没办法卸载它们，甚至没办法分辨哪些想法是你自己的、哪些是被装进来的。"</p>
+      <p>"我回不去了。不是因为我不想——是因为如果我回去，我每天都会坐在编辑部里，看着屏幕上的新闻，想着：这条是真的吗？这个国家真的存在吗？这段历史真的发生过吗？我会疯掉的。"</p>
     </div>
 
-    <p>林然打开了一个新的文档，标题是：</p>
+    <p>她停了一下。</p>
 
-    <div class="doc-block" data-label="研究方向">
-      <p><strong>项目名称：</strong>逆向审计</p>
-      <p><strong>目标：</strong>系统性地检查现有世界知识体系中是否存在其他"沃尔坎式"异常——即拥有完整信息支撑但缺乏可验证的物理存在的实体。</p>
-      <p><strong>方法：</strong>待定。</p>
-      <p><strong>优先级：</strong>最高。</p>
+    <div class="dialogue">
+      <p>"而且，我有一种直觉，可能，这个世界也回不去了。"</p>
     </div>
 
-    <p>沈淮看着那个文档，心里有一种说不清的感觉。不是恐惧——他已经过了单纯恐惧的阶段。那是一种更复杂的东西，介于愤怒和悲哀之间。</p>
-    <p>他想起了一句话——不知道在哪本书里读过的——"最可怕的不是你发现世界是假的，而是你发现世界是可以被随意修改的，而你连被通知的资格都没有。"</p>
-    <p>他看了一眼窗外。拉纳卡的灯火在夜色中闪烁，海面上有几艘渔船的灯光在缓缓移动。一切看上去那么真实，那么稳固。</p>
-    <p>但"真实"和"稳固"，从今天开始，可能只是一种错觉。</p>
+    <p>沈淮不知道该说什么。他不擅长安慰人。二十一岁，没谈过恋爱，大部分社交经验来自课堂小组讨论和线上论坛。面对许漫这样的坦诚，他的词汇表里找不到合适的回应。</p>
+    <p>所以他说了实话。</p>
+
+    <div class="dialogue">
+      <p>"我也回不去了。但理由跟你不一样。"他把啤酒罐放在地上，双手交叉抱在膝盖上，"你是因为害怕不再能够相信世界。我是因为——我现在做的这件事是我二十一年来做过的唯一一件让我激动、让我心跳加速的事。"</p>
+    </div>
+
+    <p>许漫转过头看他。</p>
+
+    <div class="dialogue">
+      <p>"你或许不知道我之前是什么样的人。"他说，"我没有特别的兴趣爱好，没有特别想做的事。选国际关系只是因为分数够、听起来还不错。把成绩考好，把科研做好，加入模联，只是因为身边的好学生都这样做。毕业以后要干什么，我大概率也是随着当下的大流保研吧。"</p>
+      <p>"以前那些事情做了别人都说好，所以我做了，但我又实在是提不起劲——千千万万个人都能做，我又有什么特别的？"</p> 
+    </div>
+
+    <p>他看着自己的手。</p>
+
+    <div class="dialogue">
+      <p>"然后沃尔坎出现了。突然之间我发现自己处在一个——一个只有我能做的位置上。"</p>
+    </div>
+
+    <p>他意识到自己说得太多了。一种羞赧涌上来。他低下头，从地上捡起啤酒罐，喝了一大口。</p>
+    <p>许漫没有说话。过了很久，她伸出手，轻轻拍了一下他的肩膀。就那么一下。力度很轻，几乎不像是安慰，更像是某种确认——确认他是真实的，确认他在这里。</p>
+
+    <div class="dialogue">
+      <p>"那就做下去。"她说。</p>
+    </div>
+
+    <p>他们又坐了一会儿。没有再说话。海风把某栋楼里传出的模糊音乐送到天台上，听不清旋律，只有节奏。远处的灯塔每隔几秒扫过一次海面。</p>
+    <p>沈淮想，这大概是他这辈子离另一个人最近的时刻——不是物理上的距离，而是某种更抽象的东西。两个被同一件不可能的事情拽出正常轨道的人，坐在地中海的夜风里，喝着难喝的啤酒，不知道明天会怎样。</p>
+    <p>奇怪的是，这种不知道让他感到安心。</p>
   </div>
 
   <div class="break">· · ·</div>
 
   <!-- ── 5 ── -->
   <div class="section">
-    <div class="section-label"><span class="dot"></span>伍 · 深夜</div>
+    <div class="section-label"><span class="dot"></span>伍 · 第二层与第三层</div>
 
-    <div class="timestamp">02:47 · 沈淮的房间</div>
+    <div class="timestamp">第六天 — 第十五天</div>
 
-    <p>所有人都走了之后，沈淮一个人坐在窗边。</p>
-    <p>他打开手机，看到苏宛在微信上发来了一条消息。时间戳是凌晨两点。</p>
+    <p>第二层和第三层的审计，都是林然主导的。</p>
+    <p>逻辑是这样的，如果关于某件事的记忆被插入，或者人类的集体记忆曾经被大规模篡改，统计层面应当留有异常——某段历史的史料密度无法解释地稀疏，某个领域的知识体系存在系统性的缺失。</p>
+    <p>两层审计前后耗时十天。</p>
+    <p>什么也没找到。</p>
+    <p>不是说没有可疑之处——历史本就充满了断裂、偶然和无法解释的跳跃，可疑之处随处都是。但林然整理出来的每一处"缺口"，在沈淮的对照检验下都无法排除正常历史偶然的可能性。一个任何普通解释都无法消化的异常数据点。那样的东西，十天里始终没有出现。</p>
+    <p>沈淮看着她日复一日地整理文献，面前的速溶奶茶空杯堆了一摞又一摞，有时候堆到半夜还没倒。他帮她倒过几次，林然都只是低着头，"嗯"了一声，继续打字，像一台没有停机时间的机器。</p>
+    <p>林然大概是被探求真理的渴望留下来的，沈淮想。</p>
+
+    <div class="timestamp">第九天 · 深夜 · 客厅</div>
+
+    <p>那天深夜，陆之衡睡不着，下楼倒水，发现林然还坐在大桌子前面。客厅里只开着她那一侧的台灯，光圈狭小，把她的侧脸映得很安静。</p>
+    <p>他在厨房站了一会儿，倒了两杯热水，把一杯放在她手边，拿着另一杯在对面的沙发上坐下，打开了平板，没有说话。</p>
+    <p>林然停下手，看了那杯水一眼，然后继续打字。过了几分钟，她开口，语气和平时说数据时一样平淡：</p>
 
     <div class="dialogue">
-      <p>苏宛：沈淮，我刚才没敢在视频里说，但有一件事我必须告诉你。</p>
-      <p>苏宛：那六十七张照片里，有一张我之前漏看了。</p>
-      <p>苏宛：不是风景。</p>
+      <p>"你睡不着是因为焦虑，还是因为习惯？"</p>
     </div>
 
-    <p>沈淮的心跳加速了。他打字的手指有些不稳。</p>
+    <p>陆之衡抬头。</p>
 
     <div class="dialogue">
-      <p>沈淮：是什么？</p>
+      <p>"有区别吗？"</p>
+      <p>"有。习惯性失眠是节律问题，可以调整。焦虑性失眠是认知问题，睡前不宜看屏幕。"她顿了顿，"你在看屏幕。"</p>
     </div>
 
-    <p>苏宛发过来一张照片。</p>
-    <p>照片拍的是一面墙。白色的石灰墙壁，表面有些斑驳，底部长着青苔。看起来像是阿什哈拉老城区某条巷子的墙面——和苏宛之前展示的那些照片的风格完全一致。</p>
-    <p>但墙上有字。</p>
-    <p>不是沃尔坎语，也不是英语或土耳其语。是中文。</p>
-    <p>歪歪扭扭的、像是用什么硬物刻上去的中文。笔画很用力，深深嵌进石灰表面，有些地方刻得太深，露出了下面灰色的石头。</p>
-    <p>只有四个字。</p>
-    <p class="no-indent" style="text-align:center; font-family:'Ma Shan Zheng',cursive; font-size:clamp(28px,5vw,36px); color:var(--accent); margin:1.2em 0; letter-spacing:0.15em;">这里没有人</p>
+    <p>陆之衡看了看手里的平板，又看了看她，忽然笑了一下。他把平板倒扣在腿上，靠进沙发。</p>
+    <p>陆之衡本不是打破砂锅问到底的性格，他的生意，他的生活日常都和沃尔坎存在与否离得很远。沈淮和许漫都不知道他为什么留下，或许陆之衡自己也搞不清楚，反正糊里糊涂地就留下了，这很不像他。</p>
+    <p>但陆之衡看着林然的脸，他好像有点知道了。</p>
+    <p>至少在一定程度上，是因为他想泡妞了。</p>
+    <p>但他什么都没再说，就这么陪着她坐到了凌晨两点。这也很不像他，他以前是很口花花的性格。</p>
+    <p>林然关电脑的时候，陆之衡已经在沙发上睡着了。</p>
+    <p>林然站起来，拿了搭在椅背上的外套轻手轻脚地盖在他身上，然后上楼去了。</p>
 
-    <p>沈淮盯着这四个字，很久很久。</p>
-    <p>然后他注意到了另一个细节——照片的右下角，墙根的青苔旁边，有一个很小的、几乎看不见的东西。他把照片放到最大。</p>
-    <p>是一根头发。</p>
-    <p>一根黑色的、卡在石缝里的头发，在地中海的阳光下泛着微弱的光泽。</p>
-    <p>这是六十七张照片里，除了苏宛本人之外，唯一一处人类存在过的痕迹。</p>
-    <p>沈淮把手机放在桌上，闭上了眼睛。</p>
-    <p>窗外的海在夜色中低低地呼吸。某个看不见的地方，一个空无一人的国家正安静地存在着，它的街道上没有脚步声，它的港口里没有汽笛，它的窗户里没有灯光。</p>
-    <p>只有一面墙上，有人用力刻下了四个中文字。</p>
-    <p>这里没有人。</p>
-    <p>就好像在说：我来过。我看到了。我想告诉你们。</p>
-    <p>但刻下这些字的人是谁——他或她后来怎么样了——没有人知道。</p>
+    <div class="timestamp">第十二天 · 傍晚 · 拉纳卡老城</div>
+
+    <p>第三层审计从第十一天开始，许漫负责从媒体信息流通角度切入，一整天都坐在那里接电话、比对数据。</p>
+    <p>第十二天傍晚，她接了第三个电话，出去到阳台上接的。沈淮在客厅里大概能听清几个词：截稿、职位、回来。</p>
+    <p>她进来的时候表情很平静，那种故意平静的平静。</p>
+    <p>沈淮看了她一眼，说：</p>
+
+    <div class="dialogue">
+      <p>"出去走走吧，顺便买点东西回来。"</p>
+    </div>
+
+    <p>许漫想了一秒，拿起包，说"走吧"，语气干净，像接受一个工作提议。</p>
+
+    <p>拉纳卡老城的石板路窄而弯曲，傍晚的光斜打下来，把街道切成一半亮一半暗。沈淮偶尔拿出手机查一眼便利店在哪，然后把手机揣回去，没再看。</p>
+    <p>许漫注意到他后来就没再看，但什么都没说。</p>
+
+    <p>他们买了咖啡豆、矿泉水和一些速食，装了两袋。沈淮把两袋都提走了，许漫没有客气，往前走了两步，回头看了一眼——他正在把两个袋子合并，调整重心，让它们不会磕到膝盖。一个很朴素的动作，她不知道为什么多看了一眼。</p>
+
+    <p>回去的路上经过了海堤。</p>
+    <p>许漫没说要停，但她停下来了。沈淮停在她旁边，把袋子放到地上，两个人就这么站着看海。傍晚的地中海是一种很深的橘红色，光线把水面压得很平，像一块凝固的镜子。</p>
+
+    <div class="dialogue">
+      <p>"我已经很久没有走路不看手机了。"许漫说。</p>
+    </div>
+
+    <p>沈淮想了一下。</p>
+
+    <div class="dialogue">
+      <p>"我今天出门也没带手机。"</p>
+    </div>
+
+    <p>许漫转头看了他一眼。他是认真的——双肩包的口袋拉链开着，里面是空的，她看得出来。</p>
+    <p>她没说什么，重新看向海面。过了一会儿开口，声音很轻，几乎不像在对他说：</p>
+
+    <div class="dialogue">
+      <p>"我主编说我再不回去，我的选题给别人了。追了半年的那个。"</p>
+    </div>
+
+    <p>沈淮记得那个选题，她之前提过一次，非法采矿，她说做出来可能有点影响。</p>
+    <p>他想了一会儿，说：</p>
+
+    <div class="dialogue">
+      <p>"那很可惜。"</p>
+    </div>
+
+    <p>许漫没想到他说的是这句。她以为他会说"那就回去吧"，或者"工作总会有的"，或者任何一句正常的安慰话。</p>
+    <p>她看了他一眼，忽然笑了。</p>
+
+    <div class="dialogue">
+      <p>"是啊，很可惜。"</p>
+    </div>
+
+    <p>两个人就这么说完了，继续往回走。</p>
+    <p>石板路不平，夹着石缝里长出来的草。许漫穿的是有跟的鞋，在这种路面上有点费力。沈淮走在她旁边，步伐自然地放慢了，没有说什么。</p>
+    <p>走到一处转弯，石板的接缝凸起来，许漫的脚踝滑了一下，沈淮伸手扶住了她的手臂，就那么一下，她站稳了，他也松开了。</p>
+    <p>中间停顿了大概一秒。</p>
+
+    <div class="dialogue">
+      <p>"这路真的很烂。"许漫说。</p>
+      <p>"对。"</p>
+    </div>
+
+    <p>许漫停了一步，侧过头，把手搭上了他的手臂，很自然，像是在找一个扶手。</p>
+
+    <div class="dialogue">
+      <p>"扶我一下，走这段。"</p>
+    </div>
+
+    <p>沈淮"嗯"了一声，僵了大概半秒，然后把手臂微微往里收了一点，让她扶稳。</p>
+    <p>他们就这么走完了剩下那段石板路，谁也没再说话。</p>
+    <p>到了民宿门口，许漫松开手，上台阶，回头说了一句：</p>
+
+    <div class="dialogue">
+      <p>"下次换双平底鞋出门。"</p>
+    </div>
+
+    <p>沈淮站在门口，提着两袋东西，没有说话。看着她进了门，站了两秒，才跟着进去。</p>
+    <p>心跳还没平下来。</p>
+
+    <div class="timestamp">第十五天 · 碰头会</div>
+
+    <p>十五天的审计，最终没有找到第二个沃尔坎，也没有找到任何大规模记忆篡改的确凿证据。</p>
+    <p>林然在汇总记录里写下的结论只有两行：</p>
+
+    <div class="doc-block" data-label="审计结论 · 第二层 / 第三层">
+      <p><strong>结论：</strong>未发现任何确凿的"沃尔坎式"异常实体。未发现人类集体记忆遭受大规模篡改的可验证证据。</p>
+      <p><strong>备注：</strong>无证据不等于无事实。</p>
+    </div>
+
+    <p>沈淮看完，把那页记录放下，抬头看了一眼窗外。</p>
+    <p>地中海的落日把海面染成橘红色，光线一层层叠在水面上，像什么东西正在慢慢地、安静地燃烧。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 6 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>陆 · 消失</div>
+
+    <div class="timestamp">第十六天 · 07:12</div>
+
+    <p>第十六天的早晨，沈淮照常醒来。</p>
+    <p>逆向审计已经初步结束，今天还不知道要做些什么呢，要不约许漫去盐湖逛逛？</p>
+    <p>洗漱完后，沈淮下楼，许漫和林然正在准备今天的早餐，有哈鲁米奶酪、炒蛋、培根和面包，还有咖啡和果汁。</p>
+    <p>陆之衡却不在，往常这时候他都在桌前喝咖啡，调戏林然。</p>
+
+    <div class="dialogue">
+      <p>"陆之衡呢？"</p>
+    </div>
+
+    <p>许漫和林然都表示没见过。林然说可能知道今天没什么事，睡懒觉了吧。许漫让沈淮过来吃早餐。</p>
+    <p>沈淮还是想找下陆之衡。</p>
+    <p>他上楼到陆之衡的房间敲了敲门，没人回应。他又喊了几声，还是没人回应。</p>
+    <p>沈淮感到有点不对劲，推门进去。</p>
+    <p>他看了看房间，床上、桌前都没有陆之衡的身影，厕所门开着，陆之衡也不在里面。</p>
+    <p>沈淮皱了皱眉，再往阳台一看。</p>
+    <p>啧，这小子怎么在阳台傻站着。</p>
+    <p>沈淮走进阳台。陆之衡回过神来，呆呆地、不可思议地望着他。</p>
+    <p>可沈淮却回不过神来了。</p>
+
+    <p>人的一生可能有很多奇迹发生，它们不可思议，带来惊喜，铺开新的局面，让当事人的认知发生变化。</p>
+    <p>但在沈淮的一生里，那翻天覆地、改变一切的一刻只有一次。</p>
+    <p class="fireball-moment">陆之衡的掌心里，托着<span class="fire-word">一团火球</span>。</p>
+
+    <p>清晨的阳光洒在阳台上，洒在两个二十来岁的年轻人身上。</p>
+    <p>温柔的，沉默的，不可挽回的。</p>
   </div>
 
   <div class="end-mark">
     <span>—— 第四章 · 完 ——</span>
   </div>
-  <div class="end-note">第五章 · 逆向审计 · 待续</div>
+  <div class="end-note">第五章 · 灰发女孩与金发女孩 · 待续</div>
 
 </div>
 

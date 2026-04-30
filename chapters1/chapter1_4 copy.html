@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第四章 · 去过的人</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f0e8;
+    --accent: #8b2500;
+    --accent-light: #c4553a;
+    --ghost: rgba(139,37,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--paper); }
+
+  body {
+    font-family: 'Noto Serif SC', 'Georgia', serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #1a1410 0%, #2a1e14 30%, #1a1610 65%, #121010 100%);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 400px 400px at 45% 50%, rgba(180,120,60,0.08), transparent),
+      radial-gradient(ellipse 300px 300px at 55% 55%, rgba(139,37,0,0.06), transparent);
+    animation: warmPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes warmPulse {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+  }
+
+  /* portrait silhouette */
+  .cover-figure {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 110px;
+    border-radius: 50% 50% 45% 45%;
+    border: 1px solid rgba(245,240,232,0.06);
+    opacity: 0.12;
+  }
+
+  .cover-figure::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 40px;
+    border-radius: 40% 40% 0 0;
+    border: 1px solid rgba(245,240,232,0.06);
+    border-bottom: none;
+  }
+
+  .cover-title {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+
+  .cover-title .series {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: clamp(14px, 2vw, 18px);
+    color: rgba(200,170,120,0.5);
+    letter-spacing: 0.4em;
+    margin-bottom: 24px;
+  }
+
+  .cover-title h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 80px rgba(180,120,60,0.2);
+  }
+
+  .cover-title .subtitle {
+    font-size: clamp(13px, 1.8vw, 17px);
+    color: rgba(245,240,232,0.3);
+    margin-top: 20px;
+    letter-spacing: 0.2em;
+  }
+
+  .cover-scroll {
+    position: absolute;
+    bottom: 40px;
+    z-index: 2;
+    color: rgba(245,240,232,0.2);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .cover-scroll::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: rgba(245,240,232,0.12);
+    margin: 12px auto 0;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BODY ── */
+  .chapter-body {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+  }
+
+  .chapter-num {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+    opacity: 0; animation: fadeIn 1s 0.3s ease both;
+  }
+
+  .chapter-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(28px, 5vw, 40px);
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 48px;
+    opacity: 0; animation: fadeIn 1s 0.5s ease both;
+  }
+
+  .chapter-heading::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    margin: 20px auto 0;
+    opacity: 0.4;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label .dot {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    line-height: 2;
+    text-indent: 2em;
+    margin-bottom: 0.6em;
+    color: #2a2a2a;
+  }
+
+  p.no-indent { text-indent: 0; }
+
+  .dialogue {
+    position: relative;
+    padding-left: 1.2em;
+    border-left: 2px solid var(--ghost);
+    margin: 1em 0;
+  }
+
+  .dialogue p { text-indent: 0; }
+
+  .thought {
+    color: #5a4a3a;
+    font-style: italic;
+    background: var(--ghost);
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin: 1.2em 0;
+  }
+
+  .thought p { text-indent: 0; color: inherit; }
+
+  .break {
+    text-align: center;
+    margin: 40px 0;
+    color: var(--accent);
+    opacity: 0.3;
+    font-size: 18px;
+    letter-spacing: 0.6em;
+  }
+
+  .forum-post {
+    background: #1e1e2a;
+    color: #c8c8d4;
+    padding: 20px 24px;
+    border-radius: 3px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    position: relative;
+    border-left: 3px solid rgba(100,120,200,0.4);
+  }
+
+  .forum-post .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: rgba(200,200,212,0.5);
+  }
+
+  .forum-post .forum-id { color: rgba(100,120,200,0.8); font-weight: bold; }
+  .forum-post p { text-indent: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+  .doc-block {
+    background: #faf8f4;
+    border: 1px solid #e0dbd2;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    position: relative;
+  }
+
+  .doc-block::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px; left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  .doc-block p { text-indent: 0; font-size: inherit; }
+
+  .timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 0.3em;
+    margin: 32px 0;
+    font-family: 'ZCOOL XiaoWei', serif;
+  }
+
+  /* ── TAPE RECORDER ── */
+  .tape-block {
+    background: #f7f3ec;
+    border: 1px solid #d8d0c0;
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    font-size: 14px;
+    line-height: 2;
+    position: relative;
+  }
+
+  .tape-block::before {
+    content: '🔴 REC';
+    position: absolute;
+    top: 0; right: 0;
+    background: #e8e0d0;
+    color: #aa3333;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 3px 10px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+  }
+
+  .tape-block p { text-indent: 0; font-size: inherit; }
+  .tape-block .speaker { color: var(--accent); font-weight: bold; font-size: 13px; }
+  .tape-block .note { color: #999; font-style: italic; font-size: 12px; }
+
+  /* ── PHOTO DESCRIPTION ── */
+  .photo-block {
+    background: #fff;
+    border: 1px solid #e0dbd2;
+    padding: 24px;
+    border-radius: 2px;
+    margin: 1.5em 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .photo-block .photo-placeholder {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(135deg, #e8e0d0 0%, #d8d0c0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border-radius: 1px;
+  }
+
+  .photo-block .photo-caption {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.6;
+    text-indent: 0;
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .end-mark span {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 24px;
+    color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .end-note {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-top: 16px;
+    letter-spacing: 0.2em;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: rgba(139,37,0,0.2); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .chapter-body { padding: 48px 20px 80px; }
+    p { line-height: 1.9; }
+  }
+
+  /* ── BOOK COVER ── */
+  .book-cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #1a1a1a 0%, #2a1a14 40%, #3a1a0a 70%, #1a1a1a 100%);
+  }
+  .book-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 30% 60%, rgba(139,37,0,0.15), transparent),
+      radial-gradient(ellipse 400px 600px at 70% 30%, rgba(90,20,0,0.1), transparent);
+    animation: bc-pulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes bc-pulse { from { opacity: 0.6; } to { opacity: 1; } }
+  .book-cover .bc-map {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.3) 40px, rgba(255,255,255,0.3) 41px);
+    animation: bc-drift 30s linear infinite;
+  }
+  @keyframes bc-drift { to { transform: translate(-40px, -40px); } }
+  .book-cover .bc-glitch {
+    position: absolute; width: 220px; height: 160px;
+    border: 1px solid rgba(139,37,0,0.3); border-radius: 4px;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    animation: bc-glitch 4s ease-in-out infinite; opacity: 0.25;
+  }
+  .book-cover .bc-glitch::after {
+    content: '?'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; color: rgba(139,37,0,0.4); font-family: 'Ma Shan Zheng', cursive;
+  }
+  @keyframes bc-glitch {
+    0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.03); }
+    52% { transform: translate(-48%, -50%) scale(1.03); }
+    54% { transform: translate(-52%, -50%) scale(1.03); }
+    56% { transform: translate(-50%, -50%) scale(1.03); }
+  }
+  .book-cover .bc-title {
+    position: relative; z-index: 2; text-align: center;
+    animation: fadeUp 1.5s ease-out both;
+  }
+  .book-cover .bc-title .series {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: clamp(14px, 2vw, 18px);
+    color: var(--accent-light); letter-spacing: 0.4em;
+    text-transform: uppercase; margin-bottom: 24px; opacity: 0.8;
+  }
+  .book-cover .bc-title h1 {
+    font-family: 'Ma Shan Zheng', cursive; font-size: clamp(48px, 10vw, 96px);
+    color: #f5f0e8; line-height: 1.2; letter-spacing: 0.08em;
+    text-shadow: 0 0 60px rgba(139,37,0,0.4);
+  }
+  .book-cover .bc-title .subtitle {
+    font-size: clamp(14px, 2vw, 18px); color: rgba(245,240,232,0.5);
+    margin-top: 20px; letter-spacing: 0.2em;
+  }
+  .book-cover .bc-title .volume {
+    margin-top: 48px; padding-top: 24px;
+    border-top: 1px solid rgba(245,240,232,0.12); display: inline-block;
+  }
+  .book-cover .bc-title .vol-cn {
+    font-family: 'ZCOOL XiaoWei', serif; font-size: clamp(16px, 2.5vw, 22px);
+    color: rgba(245,240,232,0.7); letter-spacing: 0.15em;
+  }
+  .book-cover .bc-title .vol-en {
+    font-size: clamp(11px, 1.5vw, 14px); color: rgba(245,240,232,0.35);
+    letter-spacing: 0.3em; margin-top: 8px; text-transform: uppercase;
+  }
+  .book-cover .bc-scroll {
+    position: absolute; bottom: 40px; z-index: 2;
+    color: rgba(245,240,232,0.3); font-size: 13px; letter-spacing: 0.3em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── BOOK COVER ── -->
+<div class="book-cover">
+  <div class="bc-map"></div>
+  <div class="bc-glitch"></div>
+  <div class="bc-title">
+    <div class="series">THE EIGHTH CONTINENT</div>
+    <h1>第八大洲</h1>
+    <div class="subtitle">长篇小说 · 群像</div>
+    <div class="volume">
+      <div class="vol-cn">第一卷：我叫由臣一</div>
+      <div class="vol-en">Vol.1 — I'm You Chenyi</div>
+    </div>
+  </div>
+  <div class="bc-scroll">向下阅读</div>
+</div>
+
+<!-- ── COVER ── -->
+<div class="cover">
+  <div class="cover-figure"></div>
+  <div class="cover-title">
+    <div class="series">第八大洲 · 第四章</div>
+    <h1>去过的人</h1>
+    <div class="subtitle">THE ONE WHO'S BEEN THERE</div>
+  </div>
+  <div class="cover-scroll">向下阅读</div>
+</div>
+
+<!-- ── CHAPTER BODY ── -->
+<div class="chapter-body">
+
+  <div class="chapter-num">第四章</div>
+  <h2 class="chapter-heading">去过的人</h2>
+
+  <!-- ── 1 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>壹 · 回声</div>
+
+    <div class="timestamp">事件发生后第十二天</div>
+
+    <p>沈淮那条帖子发出去三天，收到了一千四百多条私信。</p>
+    <p>他和林然花了两天时间逐一筛选。绝大多数是B类记忆者——他们"知道"沃尔坎，甚至"记得"一些和沃尔坎相关的个人经历，但经不起追问。你问他在沃尔坎住的是哪家酒店，他答不上来。你问他吃的是什么菜，他说"地中海风味的"，但描述不出任何一道具体的食物。你问他拍了照片吗，他说拍了，但翻遍手机找不到。</p>
+    <p>所有人的"记忆"都像是同一个模板的变体：温暖的气候、蓝色的海岸、友善的当地人、好吃的食物——一张旅游宣传册里会有的所有元素，没有一样是真正属于个人的、不可替代的细节。</p>
+    <p>除了一个人。</p>
+
+    <div class="forum-post" style="border-left-color: rgba(180,140,60,0.5);">
+      <div class="forum-header">
+        <span class="forum-id" style="color:rgba(180,140,60,0.9);">苏宛</span>
+        <span>私信 · 发送于第十一天 09:33</span>
+      </div>
+      <p>你好。我看到了你的帖子。我不确定你在找的人是不是我，但我需要跟人谈谈。</p>
+      <p>我去过沃尔坎。2019年夏天。一个人去的。</p>
+      <p>我知道你一定会像审问其他人一样审问我，所以我先回答几个你可能会问的问题：我住在阿什哈拉老城区的一家叫 Kızıl Han 的旅馆，红色外墙，门口有一棵很大的无花果树。我在塞拉港吃过一种当地的烤鱼，他们叫它 levrek，用一种红色的香料腌的，配酸奶和薄饼。红盐湖的水是粉红色的，走近了有一股硫磺味，湖边的泥是黑色的，当地人说可以涂在脸上美容。</p>
+      <p>我有照片。</p>
+    </div>
+
+    <p>沈淮看到这条消息的时候是凌晨一点。他在酒店房间里坐了起来，把台灯打开，反复读了三遍。</p>
+    <p>然后他叫醒了隔壁房间的许漫。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 2 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>贰 · 苏宛</div>
+
+    <div class="timestamp">事件发生后第十三天 · 拉纳卡 · 视频通话</div>
+
+    <p>苏宛，三十二岁，上海人，自由摄影师。</p>
+    <p>视频通话接通的时候，沈淮看到的是一个短发的女人，穿着一件洗得发白的灰色T恤，背后是一面贴满照片的墙。她的眼睛下面有明显的黑眼圈，但目光很清醒。</p>
+    <p>四个人都在场。陆之衡在酒店大堂用笔记本电脑接入，林然坐在沈淮旁边做记录，许漫坐在对面，面前摊着一个笔记本。</p>
+    <p>许漫主导了对话。她做了十几年采访，知道怎么提问。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">许漫：</span>苏宛，谢谢你愿意跟我们谈。我先问一个很直接的问题——你为什么联系我们？</p>
+      <p><span class="speaker">苏宛：</span>因为我快要疯了。</p>
+      <p><span class="note">（沉默，约三秒）</span></p>
+      <p><span class="speaker">苏宛：</span>这么说吧。我有一组关于沃尔坎的照片，一共六十多张，存在我的硬盘里。它们有拍摄日期、有GPS信息、有EXIF数据。它们是真实的照片，不是PS的，不是AI生成的——我是专业摄影师，我能分辨。但是……</p>
+      <p><span class="speaker">许漫：</span>但是？</p>
+      <p><span class="speaker">苏宛：</span>但是我不记得拍它们的过程。</p>
+    </div>
+
+    <p>沈淮和许漫对视了一眼。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">苏宛：</span>我"记得"我去过沃尔坎。我记得红盐湖，记得旅馆门口的无花果树，记得烤鱼的味道。但这些记忆是……你们知道那种感觉吗？就像你翻一本相册，你看到照片上的场景，你"知道"你在那里，但你不记得按下快门那一瞬间你在想什么、你旁边站着谁、风是从哪个方向吹来的。</p>
+      <p><span class="speaker">许漫：</span>你是说，你有关于沃尔坎的记忆，但那些记忆缺乏……主观体验？</p>
+      <p><span class="speaker">苏宛：</span>对。就是这个词。缺乏主观体验。我所有其他旅行的记忆都是有温度的——我记得在冰岛被风吹得睁不开眼，记得在印度被咖喱呛到咳嗽，记得在巴塔哥尼亚凌晨四点爬起来拍日出时的困意。但沃尔坎的记忆是——平的。像一张打印出来的照片，没有景深。</p>
+      <p><span class="note">（停顿）</span></p>
+      <p><span class="speaker">苏宛：</span>你的帖子说你们去了那片海域。你们到了吗？</p>
+      <p><span class="speaker">沈淮：</span>没有。GPS冻结了。我们无法接近。</p>
+      <p><span class="speaker">苏宛：</span>……所以那个地方真的到不了。</p>
+      <p><span class="speaker">沈淮：</span>至少物理上到不了。但你说你去过。你是怎么去的？</p>
+      <p><span class="speaker">苏宛：</span>这就是让我发疯的地方。我不记得。我记得"在"沃尔坎，但不记得"去"沃尔坎。没有起飞和降落的记忆，没有过海关的记忆，没有坐车从机场到酒店的记忆。就好像——我直接就在那里了。像一个梦，你不记得梦是怎么开始的，你只是突然就在梦里了。</p>
+    </div>
+
+    <p>林然一直在飞快地打字。她停下来，问了一个问题。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">林然：</span>你说你有照片。能给我们看吗？</p>
+      <p><span class="speaker">苏宛：</span>当然。这就是我联系你们的原因之一。</p>
+    </div>
+
+    <p>苏宛的脸从画面里消失了几秒钟。然后她回来了，手里多了一台笔记本电脑。她把屏幕转向摄像头，开始一张一张地翻照片。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 3 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>叁 · 照片</div>
+
+    <p>第一张：一条狭窄的石板路，两侧是白色的、带拱门的低矮建筑，墙根长着紫色的三角梅。路尽头是一片碎金般的海面。光线是傍晚的，长长的影子从画面右侧切入。</p>
+
+    <div class="photo-block">
+      <div class="photo-placeholder">阿什哈拉老城 · 傍晚 · 2019.07.14</div>
+      <p class="photo-caption">EXIF: Canon EOS R · 35mm f/1.4 · ISO 200 · 1/500s<br>GPS: 34.8921°N, 33.4107°E</p>
+    </div>
+
+    <p>第二张：一家旅馆的外立面。红色的墙壁，木质的百叶窗，门口确实有一棵巨大的无花果树，叶子在阳光下泛着蜡质的光泽。门牌上用拉丁字母写着"Kızıl Han"。</p>
+
+    <div class="photo-block">
+      <div class="photo-placeholder">Kızıl Han 旅馆 · 午后 · 2019.07.15</div>
+      <p class="photo-caption">EXIF: Canon EOS R · 24mm f/2.8 · ISO 100 · 1/1000s<br>GPS: 34.8934°N, 33.4089°E</p>
+    </div>
+
+    <p>第三张：红盐湖。照片的色彩饱和度很高，但不像是后期调过的——湖水本身就是那种浓烈的、近乎不真实的粉红色。远处的山脊呈赭红色，天空是干燥地区特有的、深得发紫的蓝。湖面上倒映着一朵孤零零的白云。</p>
+
+    <div class="photo-block">
+      <div class="photo-placeholder">红盐湖 · 正午 · 2019.07.17</div>
+      <p class="photo-caption">EXIF: Canon EOS R · 16mm f/8 · ISO 100 · 1/2000s<br>GPS: 34.7653°N, 33.3412°E</p>
+    </div>
+
+    <p>沈淮盯着这些照片，感觉到一种奇怪的眩晕。</p>
+    <p>它们太真实了。光影关系是对的，景深是对的，镜头畸变是对的。甚至连照片里的灰尘和瑕疵都对——第二张照片的左下角有一道轻微的眩光，明显是镜头没有遮光罩时被侧面的阳光打到了。这不是AI能生成的东西，至少不是现有技术能做到的精度。</p>
+    <p>但他也注意到了另一件事。</p>
+
+    <div class="dialogue">
+      <p>"苏宛，六十多张照片里，有没有任何一张拍到了人？"</p>
+    </div>
+
+    <p>视频那头安静了一瞬。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">苏宛：</span>……没有。</p>
+      <p><span class="note">（长时间沉默）</span></p>
+      <p><span class="speaker">苏宛：</span>我翻过了。全部六十七张。没有一张照片里出现了人。没有路人，没有游客，没有店主，没有渔民。甚至没有人的影子。每一张照片里的街道、广场、港口、市场——都是空的。</p>
+      <p><span class="speaker">许漫：</span>一个四百二十万人口的国家，你在那里待了——多久？</p>
+      <p><span class="speaker">苏宛：</span>照片日期显示是四天。从七月十四号到七月十七号。</p>
+      <p><span class="speaker">许漫：</span>四天，六十七张照片，没有一个人。</p>
+      <p><span class="speaker">苏宛：</span>但我"记得"有人。我记得旅馆老板是个胖胖的中年男人，胡子很浓。我记得塞拉港有个卖冰淇淋的小推车。我记得红盐湖边有一群中学生在春游。这些记忆都在我脑子里——但照片里一个人都没有。</p>
+    </div>
+
+    <p>林然停下了打字。</p>
+    <p>房间里安静了很长时间。视频通话的画面偶尔卡顿一下，苏宛的脸在像素间微微模糊又恢复清晰。她的表情很平静，但那种平静里有一种几乎让人心碎的疲惫——一个人独自面对了太久的、说出来没人相信的事情所特有的疲惫。</p>
+    <p>陆之衡打破了沉默。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">陆之衡：</span>苏宛。照片上的GPS坐标——你验证过吗？</p>
+      <p><span class="speaker">苏宛：</span>验证过。那些坐标在地图上确实对应沃尔坎境内的位置。但你们昨天的帖子说那些坐标对应的地方实际上是——</p>
+      <p><span class="speaker">陆之衡：</span>一千米深的海。</p>
+    </div>
+
+    <p>苏宛把嘴唇抿成了一条线。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">苏宛：</span>所以你们想问的其实是——我到底去了哪儿？</p>
+      <p><span class="speaker">沈淮：</span>不，我想问的是——你那四天到底经历了什么？在你的真实记忆里——不是被"植入"的那部分——2019年七月十四号到十七号，你在哪里？</p>
+    </div>
+
+    <p>苏宛的眼神发生了变化。</p>
+    <p>那是一种沈淮很熟悉的表情——他在论坛上的那些C类记忆者身上见过很多次。两套记忆同时存在的人，在试图分辨哪一套是真的时候，眼睛里会出现的那种微妙的、带着痛苦的振荡。</p>
+
+    <div class="tape-block">
+      <p><span class="speaker">苏宛：</span>我……不知道。</p>
+      <p><span class="note">（声音开始发抖）</span></p>
+      <p><span class="speaker">苏宛：</span>我查过自己的信用卡账单。那四天——七月十四号到十七号——没有任何消费记录。没有机票，没有酒店，没有刷卡，没有取现。但我也不在上海——因为十三号和十八号之间我的微信步数是零，没有叫过外卖，没有坐过出租车，没有跟任何人联系过。</p>
+      <p><span class="speaker">苏宛：</span>那四天，我从现实世界里消失了。然后我回来了，带着六十七张没有人的照片，和一脑袋不属于我的记忆。</p>
+    </div>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 4 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>肆 · 裂痕</div>
+
+    <p>通话结束之后，四个人在沈淮的房间里坐了很久。</p>
+    <p>林然在整理录音和笔记。许漫靠在窗边，看着窗外的夜色。陆之衡坐在椅子上，一条腿搭在另一条腿上，手指有节奏地敲着扶手。</p>
+    <p>沈淮站在他钉在墙上的那张地图前面，盯着沃尔坎的位置。</p>
+    <p>是许漫先开口的。</p>
+
+    <div class="dialogue">
+      <p>"我们现在知道的事情：第一，沃尔坎在物理空间中不可抵达。第二，但至少有一个人拥有在那里拍摄的、具有物理真实性的照片。第三，这个人在拍摄照片的时间段内从现实世界里'消失'了。第四，照片里没有任何人类。"</p>
+    </div>
+
+    <p>她转过身，面对其他三个人。</p>
+
+    <div class="dialogue">
+      <p>"这意味着什么？"</p>
+    </div>
+
+    <p>林然推了推眼镜，很慢很慢地开口。</p>
+
+    <div class="dialogue">
+      <p>"我有一个假说。不成熟，但能解释目前所有的现象。"</p>
+      <p>"说。"</p>
+      <p>"沃尔坎是一个……投影。一个被叠加在现实之上的、信息层面的存在。它拥有完整的地理数据、历史叙事、文化细节——这些东西存在于所有的数据库、书籍和人类的记忆中。但它没有物理实体。那片海域就是海，没有陆地，没有城市，没有人。"</p>
+      <p>"那苏宛的照片怎么解释？"沈淮问。</p>
+      <p>"苏宛拍到的可能不是'真实的沃尔坎'——因为没有真实的沃尔坎。她拍到的是……投影本身。她以某种我们不理解的方式，进入了那个信息层。就好像一个人走进了一幅全息影像里——建筑是'真的'，街道是'真的'，光影是'真的'，但没有人。因为人不是投影的一部分。人只是'记得'自己在那里。"</p>
+    </div>
+
+    <p>房间里的空调在安静地运转。嗡嗡声在夜晚显得格外清晰。</p>
+
+    <div class="dialogue">
+      <p>"你的意思是，"陆之衡慢慢地说，"沃尔坎是一个没有居民的国家。四百二十万人口是假的。所有人'记得'的那些沃尔坎人——总统、外交官、商人、渔民——都不存在。"</p>
+      <p>"对。这也能解释为什么论坛上从来没有沃尔坎人现身。不是因为他们不上中文互联网——而是因为他们不存在。"</p>
+    </div>
+
+    <p>沈淮感觉自己的脊背在发凉。</p>
+
+    <div class="dialogue">
+      <p>"但这就引出了一个更大的问题，"他说，声音有些干涩，"谁制造了这个投影？为什么？"</p>
+    </div>
+
+    <p>没有人回答。</p>
+    <p>许漫走到桌边，拿起一支笔，在笔记本上写了两行字。她把笔记本翻过来给大家看：</p>
+    <p class="no-indent" style="text-align:center; margin:1.5em 0; font-weight:bold; letter-spacing:0.05em;">如果它能添加一个国家——<br>它还添加过什么？删除过什么？</p>
+    <p>这个问题像一块石头砸进了一池静水。</p>
+    <p>沈淮想起了第一天那个论坛帖子里有人写过的话——"如果它能在一夜之间出现，那什么东西能在一夜之间消失？"当时他觉得那只是一个修辞。但现在，结合林然的假说，这个问题的含义突然变得无比具体而恐怖。</p>
+    <p>如果现实可以被编辑——添加一个国家只是最新的一次操作——那在此之前呢？有多少东西被悄无声息地改写过？有多少记忆被替换过？有多少人、多少城市、多少历史事件……此刻"存在"于所有人的认知中，但其实从未发生过？</p>
+    <p>或者反过来——有多少曾经真实存在的东西，被删除了？</p>
+    <p>而他们浑然不觉。</p>
+    <p>就像全世界在沃尔坎出现之前浑然不觉一样——如果不是沈淮恰好在那一天晚上看过那片海域的地图，如果不是那几千个不知道为什么没有被完全改写的"异常者"，没有人会发现这件事。</p>
+    <p>也许以前也发生过。也许发生过很多次。也许每一次都很完美，没有留下任何痕迹。</p>
+    <p>也许这一次只是出了一点差错。</p>
+
+    <div class="dialogue">
+      <p>"我们不能只盯着沃尔坎。"许漫的声音很轻，但很坚定，"我们需要检查其他东西。其他国家，其他历史事件，其他'一直存在'的事物。如果沃尔坎是一个bug——一次不完美的编辑——那也许还有其他的bug。"</p>
+    </div>
+
+    <p>林然打开了一个新的文档，标题是：</p>
+
+    <div class="doc-block" data-label="研究方向">
+      <p><strong>项目名称：</strong>逆向审计</p>
+      <p><strong>目标：</strong>系统性地检查现有世界知识体系中是否存在其他"沃尔坎式"异常——即拥有完整信息支撑但缺乏可验证的物理存在的实体。</p>
+      <p><strong>方法：</strong>待定。</p>
+      <p><strong>优先级：</strong>最高。</p>
+    </div>
+
+    <p>沈淮看着那个文档，心里有一种说不清的感觉。不是恐惧——他已经过了单纯恐惧的阶段。那是一种更复杂的东西，介于愤怒和悲哀之间。</p>
+    <p>他想起了一句话——不知道在哪本书里读过的——"最可怕的不是你发现世界是假的，而是你发现世界是可以被随意修改的，而你连被通知的资格都没有。"</p>
+    <p>他看了一眼窗外。拉纳卡的灯火在夜色中闪烁，海面上有几艘渔船的灯光在缓缓移动。一切看上去那么真实，那么稳固。</p>
+    <p>但"真实"和"稳固"，从今天开始，可能只是一种错觉。</p>
+  </div>
+
+  <div class="break">· · ·</div>
+
+  <!-- ── 5 ── -->
+  <div class="section">
+    <div class="section-label"><span class="dot"></span>伍 · 深夜</div>
+
+    <div class="timestamp">02:47 · 沈淮的房间</div>
+
+    <p>所有人都走了之后，沈淮一个人坐在窗边。</p>
+    <p>他打开手机，看到苏宛在微信上发来了一条消息。时间戳是凌晨两点。</p>
+
+    <div class="dialogue">
+      <p>苏宛：沈淮，我刚才没敢在视频里说，但有一件事我必须告诉你。</p>
+      <p>苏宛：那六十七张照片里，有一张我之前漏看了。</p>
+      <p>苏宛：不是风景。</p>
+    </div>
+
+    <p>沈淮的心跳加速了。他打字的手指有些不稳。</p>
+
+    <div class="dialogue">
+      <p>沈淮：是什么？</p>
+    </div>
+
+    <p>苏宛发过来一张照片。</p>
+    <p>照片拍的是一面墙。白色的石灰墙壁，表面有些斑驳，底部长着青苔。看起来像是阿什哈拉老城区某条巷子的墙面——和苏宛之前展示的那些照片的风格完全一致。</p>
+    <p>但墙上有字。</p>
+    <p>不是沃尔坎语，也不是英语或土耳其语。是中文。</p>
+    <p>歪歪扭扭的、像是用什么硬物刻上去的中文。笔画很用力，深深嵌进石灰表面，有些地方刻得太深，露出了下面灰色的石头。</p>
+    <p>只有四个字。</p>
+    <p class="no-indent" style="text-align:center; font-family:'Ma Shan Zheng',cursive; font-size:clamp(28px,5vw,36px); color:var(--accent); margin:1.2em 0; letter-spacing:0.15em;">这里没有人</p>
+
+    <p>沈淮盯着这四个字，很久很久。</p>
+    <p>然后他注意到了另一个细节——照片的右下角，墙根的青苔旁边，有一个很小的、几乎看不见的东西。他把照片放到最大。</p>
+    <p>是一根头发。</p>
+    <p>一根黑色的、卡在石缝里的头发，在地中海的阳光下泛着微弱的光泽。</p>
+    <p>这是六十七张照片里，除了苏宛本人之外，唯一一处人类存在过的痕迹。</p>
+    <p>沈淮把手机放在桌上，闭上了眼睛。</p>
+    <p>窗外的海在夜色中低低地呼吸。某个看不见的地方，一个空无一人的国家正安静地存在着，它的街道上没有脚步声，它的港口里没有汽笛，它的窗户里没有灯光。</p>
+    <p>只有一面墙上，有人用力刻下了四个中文字。</p>
+    <p>这里没有人。</p>
+    <p>就好像在说：我来过。我看到了。我想告诉你们。</p>
+    <p>但刻下这些字的人是谁——他或她后来怎么样了——没有人知道。</p>
+  </div>
+
+  <div class="end-mark">
+    <span>—— 第四章 · 完 ——</span>
+  </div>
+  <div class="end-note">第五章 · 逆向审计 · 待续</div>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
